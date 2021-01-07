@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.project2.Util.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:background="@drawable/image_bg"/>
+
+    <TextView
+        android:id="@+id/tv_gallery"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="bottom|end"
+        android:textAlignment="gravity"
+        android:textColor="@color/white"
+        android:text="folder"
+        android:padding="10dp"
+        android:layout_alignRight="@id/imageView"
+        android:layout_alignLeft="@id/imageView"
+        android:layout_alignBottom="@id/imageView"
+        android:layout_alignTop="@id/imageView"
+        android:background="@drawable/gallary_bg"/>
+</com.example.project2.Util.SquareRelativeLayout>
