@@ -2,7 +2,7 @@
   "name": "cs496-project2",
   "version": "1.0.0",
   "description": "cs496-project2",
-  "main": "app.js",
+  "main": "server_basic/server.js",
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
