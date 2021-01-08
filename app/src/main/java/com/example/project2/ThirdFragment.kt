@@ -93,26 +93,18 @@ class ThirdFragment : Fragment() {
                 } else {
                     Log.d("login","access token is null")
                 }
-//                var graphRequest = GraphRequest.newMeRequest(result?.accessToken, object: GraphRequest.GraphJSONObjectCallback {
-//                    override fun onCompleted(`object`: JSONObject?, response: GraphResponse?) {
-//                        Log.v("result", `object`.toString())
-//                    }
-//                }
-//            )
-//                var parameters = Bundle()
-//                parameters.putString("fields", "id,name,email,gender,birthday")
-//                graphRequest.parameters = parameters
-//                graphRequest.executeAsync()
             }
             override fun onCancel() {
                 Log.e("Logincan", "can")
             }
-
             override fun onError(error: FacebookException?) {
                 Log.e("LoginErr", error.toString())
             }
-
         })
+
+
+        var async = Async()
+        async.execute()
 
         return viewOfLayout
     }
