@@ -65,7 +65,7 @@ class ThirdFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-        LoginManager.getInstance().
+//        LoginManager.getInstance().
 
 
     }
@@ -81,8 +81,8 @@ class ThirdFragment : Fragment() {
         callbackManager = CallbackManager.Factory.create()
 
         var loginButton = viewOfLayout.findViewById<LoginButton>(R.id.login_button)
-//        loginButton.setPermissions(listOf("email", "public_profile"))
-        loginButton.setPermissions(listOf("email", "public_profile"))
+        loginButton.setPermissions(listOf("email"))
+        loginButton.setFragment(this)
         Log.d("fick", "fock")
         loginButton.registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
             override fun onSuccess(result: LoginResult?) {
@@ -137,7 +137,7 @@ class ThirdFragment : Fragment() {
         })
 
         var parameters = Bundle()
-        parameters.putString("fields","id,name,email,picture.width(200")
+        parameters.putString("fields","id,name,email,picture.width(200)")
         graphRequest.parameters = parameters
         graphRequest.executeAsync()
     }
