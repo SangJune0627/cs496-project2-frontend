@@ -4,6 +4,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.media.tv.TvContract.Programs.Genres.encode
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -15,9 +18,19 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.example.project2.Stopwatch.StopwatchService
+import com.facebook.*
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
+import com.facebook.login.widget.LoginButton
+import org.json.JSONException
+import org.json.JSONObject
+import java.net.URLEncoder.encode
+import java.security.MessageDigest
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -35,42 +48,26 @@ class ThirdFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
-    private var isRunning = false
-    private var isNotZero = false
-    private var timerTask: Timer? = null
-    private var index :Int = 1
+    private lateinit var myContext: FragmentActivity
 
-    private var tvCounter: TextView? = null
-    private var layoutRecords: LinearLayout? = null
-    private var btnLeft: Button? = null
-    private var btnRight: Button? = null
+    private lateinit var callbackManager: CallbackManager
 
-    lateinit var mService: StopwatchService
-    private var mBound: Boolean = false
 
-    private val connection = object : ServiceConnection {
-
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as StopwatchService.MyBinder
-            mService = binder.getService()
-            mBound = true
-
-            isRunning = mService.getIsRunning()
-            isNotZero = mService.getIsNotZero()
-            resume()
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            mBound = false
-        }
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        myContext = context as FragmentActivity
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+//        LoginManager.getInstance().
+
+
     }
 
     override fun onCreateView(
@@ -79,126 +76,72 @@ class ThirdFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val viewOfLayout = inflater.inflate(R.layout.fragment_third, container, false)
+        FacebookSdk.sdkInitialize(myContext)
 
-        tvCounter = viewOfLayout?.findViewById(R.id.tvCounter)
-        layoutRecords = viewOfLayout?.findViewById(R.id.layoutRecords)
-        btnLeft = viewOfLayout?.findViewById(R.id.btnLeft)
-        btnRight = viewOfLayout?.findViewById(R.id.btnRight)
+        callbackManager = CallbackManager.Factory.create()
 
-        btnLeft?.setOnClickListener {
-            isRunning = !isRunning
-            isNotZero = true
-            if (isRunning) {
-                btnLeft?.text = "Stop"
-                btnRight?.text = "Record"
-                start()
-            } else {
-                btnLeft?.text = "Start"
-                btnRight?.text = "Reset"
-                pause()
+        var loginButton = viewOfLayout.findViewById<LoginButton>(R.id.login_button)
+        loginButton.setPermissions(listOf("email"))
+        loginButton.setFragment(this)
+        Log.d("fick", "fock")
+        loginButton.registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
+            override fun onSuccess(result: LoginResult?) {
+                Log.d("fuck", "fack")
+                if(result?.accessToken != null) {
+                    val accessToken = result.accessToken
+                    getFacebookInfo(accessToken)
+                } else {
+                    Log.d("login","access token is null")
+                }
+//                var graphRequest = GraphRequest.newMeRequest(result?.accessToken, object: GraphRequest.GraphJSONObjectCallback {
+//                    override fun onCompleted(`object`: JSONObject?, response: GraphResponse?) {
+//                        Log.v("result", `object`.toString())
+//                    }
+//                }
+//            )
+//                var parameters = Bundle()
+//                parameters.putString("fields", "id,name,email,gender,birthday")
+//                graphRequest.parameters = parameters
+//                graphRequest.executeAsync()
             }
-        }
-
-        btnRight?.setOnClickListener {
-            if(isRunning) {
-                val lapTime = mService.getTime()
-                lapTime(lapTime)
-            } else {
-                reset()
+            override fun onCancel() {
+                Log.e("Logincan", "can")
             }
-        }
 
-        requireActivity().startService(Intent(requireContext(), StopwatchService::class.java))
-        requireActivity().bindService(Intent(requireContext(), StopwatchService::class.java), connection, Context.BIND_AUTO_CREATE)
-        resume()
+            override fun onError(error: FacebookException?) {
+                Log.e("LoginErr", error.toString())
+            }
+
+        })
 
         return viewOfLayout
     }
 
-    override fun onDestroy() {
-        timerTask?.let { it.cancel() }
-        if (!isNotZero) {
-            requireActivity().stopService(Intent(requireContext(), StopwatchService::class.java))
-        }
-        super.onDestroy()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        callbackManager.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun setTime() {
-        val setTime = mService.getTime()
-        var milli = setTime % 100
-        var sec = (setTime/100) % 60
-        var min = setTime / 6000
-        tvCounter?.text = String.format("%02d:%02d.%02d",min,sec,milli)
-    }
-
-    fun dpToPx(context: Context, dp: Float): Float {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics)
-    }
-
-    private fun lapTime(lapTime: Int) {
-        mService.addRecord(lapTime)
-        val textView = TextView(requireContext()).apply {
-            setTextSize(20f)
-            gravity = Gravity.CENTER or Gravity.BOTTOM
-            setPadding(dpToPx(requireContext(), 10f).toInt())
-        }
-        var milli = lapTime % 100
-        var sec = (lapTime/100) % 60
-        var min = lapTime / 6000
-        textView.text = String.format("%02d:%02d.%02d",min,sec,milli)
-
-        layoutRecords?.addView(textView,0)
-        index++
-    }
-
-    private fun start() {
-        mService.startAndPause()
-        timerTask = kotlin.concurrent.timer(period = 10) {
-            requireActivity().runOnUiThread {
-                setTime()
-            }
-        }
-    }
-
-    private fun resume() {
-        if (!isNotZero) {return}
-        if (!::mService.isInitialized) {return}
-        when (isRunning) {
-            true -> {
-                timerTask = kotlin.concurrent.timer(period = 10) {
-                    requireActivity().runOnUiThread {
-                        setTime()
-                    }
+    private fun getFacebookInfo(accessToken: AccessToken) {
+        val graphRequest = GraphRequest.newMeRequest(accessToken, object: GraphRequest.GraphJSONObjectCallback {
+            override fun onCompleted(resultObject: JSONObject?, response: GraphResponse?) {
+                try {
+                    val name = resultObject?.getString("name")
+                    val email = resultObject?.getString("email")
+                    val image = resultObject?.getJSONObject("picture")?.getJSONObject("data")?.getString("url")
+                    Log.d("result", "name $name + email $email + image $image")
+                } catch (e: JSONException) {
+                    e.printStackTrace()
                 }
-                btnLeft?.text = "Stop"
-                btnRight?.text = "Record"
             }
-            false -> {
-                setTime()
-            }
-        }
-        var size = mService.getRecordSize()
-        for (i in 0 until size) {
-            lapTime(mService.getRecord(i))
-        }
+        })
+
+        var parameters = Bundle()
+        parameters.putString("fields","id,name,email,picture.width(200)")
+        graphRequest.parameters = parameters
+        graphRequest.executeAsync()
     }
 
-    private fun pause() {
-        mService.startAndPause()
-        timerTask?.cancel()
-    }
-
-    private fun reset() {
-        mService.reset()
-        timerTask?.cancel()
-
-        isRunning = false
-        isNotZero = false
-        tvCounter?.text = "00:00.00"
-
-        layoutRecords?.removeAllViews()
-        index = 1
-    }
 
     companion object {
         /**
