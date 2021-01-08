@@ -23,7 +23,12 @@ import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.project2.Stopwatch.StopwatchService
-import com.facebook.CallbackManager
+import com.facebook.*
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
+import com.facebook.login.widget.LoginButton
+import org.json.JSONException
+import org.json.JSONObject
 import java.net.URLEncoder.encode
 import java.security.MessageDigest
 import java.util.*
@@ -60,22 +65,7 @@ class ThirdFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-
-        // 해시 키 받아와보다
-        try {
-            val info = myContext.packageManager.getPackageInfo(myContext.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
-            val signatures = info.signingInfo.apkContentsSigners
-            val md = MessageDigest.getInstance("SHA")
-            for (signature in signatures) {
-                val md: MessageDigest
-                md = MessageDigest.getInstance("SHA")
-                md.update(signature.toByteArray())
-                val key = Base64.getEncoder().encodeToString(md.digest())
-                Log.d("Hash key:", "!!!!!!!$key!!!!!!")
-            }
-        } catch(e: Exception) {
-            Log.e("name not found", e.toString())
-        }
+        LoginManager.getInstance().
 
 
     }
@@ -86,8 +76,70 @@ class ThirdFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val viewOfLayout = inflater.inflate(R.layout.fragment_third, container, false)
+        FacebookSdk.sdkInitialize(myContext)
+
+        callbackManager = CallbackManager.Factory.create()
+
+        var loginButton = viewOfLayout.findViewById<LoginButton>(R.id.login_button)
+//        loginButton.setPermissions(listOf("email", "public_profile"))
+        loginButton.setPermissions(listOf("email", "public_profile"))
+        Log.d("fick", "fock")
+        loginButton.registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
+            override fun onSuccess(result: LoginResult?) {
+                Log.d("fuck", "fack")
+                if(result?.accessToken != null) {
+                    val accessToken = result.accessToken
+                    getFacebookInfo(accessToken)
+                } else {
+                    Log.d("login","access token is null")
+                }
+//                var graphRequest = GraphRequest.newMeRequest(result?.accessToken, object: GraphRequest.GraphJSONObjectCallback {
+//                    override fun onCompleted(`object`: JSONObject?, response: GraphResponse?) {
+//                        Log.v("result", `object`.toString())
+//                    }
+//                }
+//            )
+//                var parameters = Bundle()
+//                parameters.putString("fields", "id,name,email,gender,birthday")
+//                graphRequest.parameters = parameters
+//                graphRequest.executeAsync()
+            }
+            override fun onCancel() {
+                Log.e("Logincan", "can")
+            }
+
+            override fun onError(error: FacebookException?) {
+                Log.e("LoginErr", error.toString())
+            }
+
+        })
 
         return viewOfLayout
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        callbackManager.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun getFacebookInfo(accessToken: AccessToken) {
+        val graphRequest = GraphRequest.newMeRequest(accessToken, object: GraphRequest.GraphJSONObjectCallback {
+            override fun onCompleted(resultObject: JSONObject?, response: GraphResponse?) {
+                try {
+                    val name = resultObject?.getString("name")
+                    val email = resultObject?.getString("email")
+                    val image = resultObject?.getJSONObject("picture")?.getJSONObject("data")?.getString("url")
+                    Log.d("result", "name $name + email $email + image $image")
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            }
+        })
+
+        var parameters = Bundle()
+        parameters.putString("fields","id,name,email,picture.width(200")
+        graphRequest.parameters = parameters
+        graphRequest.executeAsync()
     }
 
 
