@@ -130,6 +130,8 @@ class SecondFragmentGallery : Fragment() {
 
         gv = viewOfLayout.findViewById(R.id.gridView)
 
+        var adapter_addr = Frag2_Adapter_Addr(myContext, currentStructure.children, galleryImages, false, null)
+
         var adapter = Frag2_Adapter(myContext, items, false, null)
         adapter.setOnItemClickListener { v, pos ->
             when (items[pos].type) {
@@ -169,7 +171,9 @@ class SecondFragmentGallery : Fragment() {
             fragTransaction.addToBackStack(null)
             fragTransaction.commit()
         }
-        gv.setAdapter(adapter)
+
+//        gv.setAdapter(adapter)
+        gv.adapter = adapter_addr
 
         val gm = GridLayoutManager(requireContext(), spanCount)
         gv.layoutManager = gm
