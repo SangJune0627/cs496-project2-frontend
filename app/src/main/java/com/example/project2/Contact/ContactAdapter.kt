@@ -16,7 +16,9 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.example.project2.FirstFragment
 import com.example.project2.R
+import com.example.project2.dirty_bit
 import kotlin.collections.ArrayList
 
 class ContactAdapter(val context: Context, val items: ArrayList<ContactItem>): RecyclerView.Adapter<ContactAdapter.Holder>(), Filterable {
@@ -57,12 +59,16 @@ class ContactAdapter(val context: Context, val items: ArrayList<ContactItem>): R
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBindViewHolder(holder: Holder, position: Int) {
+//        lateinit var rvcontact:RecyclerView
+//        rvcontact = getResource().findViewById(R.id.rv_contact)!!
+//        rvcontact.let { showContacts(it) }
         holder.bind(displayItems[position], context)
         // Show detail of selected contact in android default application
         holder.itemView.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setData(Uri.parse(ContactsContract.Contacts.CONTENT_URI.toString()+"/"+displayItems[position].id))
             startActivity(context, intent, null)
+            dirty_bit = 1
         }
     }
 

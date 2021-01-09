@@ -27,6 +27,7 @@ import java.util.*
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+var dirty_bit: Int = 0
 
 /**
  * A simple [Fragment] subclass.
@@ -125,6 +126,14 @@ class FirstFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(dirty_bit==1) {
+            Thread.sleep(100)
+            rv_contact.let { showContacts(it) }
+        }
+    }
+
     fun onPermissionGranted() {
         tv_permission.text = ""
         rv_contact.let { showContacts(it) }
@@ -158,6 +167,7 @@ class FirstFragment : Fragment() {
                     Random().nextInt(requireContext().resources.getIntArray(R.array.contactIconColors).size)))
             } while (c.moveToNext())
         }
+        dirty_bit = 0
 
         adapter = ContactAdapter(requireContext(), ContactList)
         rv.adapter = adapter
