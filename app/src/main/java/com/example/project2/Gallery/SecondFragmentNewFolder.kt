@@ -44,6 +44,11 @@ class SecondFragmentNewFolder : Fragment() {
 
     private lateinit var folderName: String
 
+    lateinit var currentStructure: GalleryStructure
+    lateinit var galleryImagesSto: ArrayList<GalleryImage>
+
+    lateinit var selectedIndices: ArrayList<Int>
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         myContext = context as FragmentActivity
@@ -79,17 +84,29 @@ class SecondFragmentNewFolder : Fragment() {
             newGallery.spanCount = spanCount
             newGallery.dir_current = caller.dir_current.plus(folderName).plus("/")
 
-            if (items[0].type < 2) { // ordinary image or folder
-//                caller.items.add(0, GalleryItem(1, items[0].img, null, folderName, newGallery))
-                caller.items.add(0, GalleryItem(1, null, null, null))
-            } else { // imported image or folder
-//                caller.items.add(0, GalleryItem(3, null, items[0].bitmap, folderName, newGallery))
-                caller.items.add(0, GalleryItem(1, null, null, null))
+            newGallery.galleryImagesSto = galleryImagesSto
+
+            var newStructure = GalleryStructure()
+            newStructure.type = 1
+            newStructure.dirName = folderName
+            items.forEach {
+                var imageStructure = GalleryStructure()
+                imageStructure.type = 0
+                imageStructure.imgAddr = it.imgAddr!!
+                newStructure.children.add(imageStructure)
             }
+            currentStructure.children.add(0, newStructure)
+            caller.items.add(0, GalleryItem(1, items[0].imgAddr, folderName, newGallery))
+
+            newGallery.currentStructure = newStructure
 
             // remove all the items moved into the new gallery
             for (i in items) {
                 caller.items.remove(i)
+            }
+
+            for (index in selectedIndices) {
+                currentStructure.children.removeAt(index)
             }
 
             fragTransaction = fragManager.beginTransaction()

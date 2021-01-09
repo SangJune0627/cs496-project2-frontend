@@ -67,6 +67,9 @@ class SecondFragmentSelect : Fragment() {
     // Array of items passed from the caller
     var items: ArrayList<GalleryItem> = ArrayList<GalleryItem>()
 
+    lateinit var galleryImagesSto: ArrayList<GalleryImage>
+    lateinit var currentStructure: GalleryStructure
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -93,7 +96,7 @@ class SecondFragmentSelect : Fragment() {
         gv = viewOfLayout.findViewById(R.id.selectGridView)
 
         // Listen which items to choose
-        var adapter = Frag2_Adapter(myContext, items, true, initially_selected)
+        var adapter = Frag2_Adapter_Addr(myContext, items, galleryImagesSto, true, initially_selected)
         adapter.setOnItemClickListener { v, pos ->
             if (selectedIndices.contains(pos)){
                 selectedIndices.remove(pos)
@@ -144,6 +147,10 @@ class SecondFragmentSelect : Fragment() {
                 newFolderFragment.items = items.slice(selectedIndices) as ArrayList<GalleryItem>
                 newFolderFragment.caller = caller
                 newFolderFragment.spanCount = spanCount
+                newFolderFragment.galleryImagesSto = galleryImagesSto
+                newFolderFragment.currentStructure = currentStructure
+                newFolderFragment.selectedIndices = selectedIndices
+
 
                 fragTransaction = fragManager.beginTransaction()
                 fragTransaction.replace(R.id.secondFragment, newFolderFragment)

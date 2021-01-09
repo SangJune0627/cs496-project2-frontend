@@ -132,8 +132,6 @@ class SecondFragmentGallery : Fragment() {
         adapter_addr.setOnItemClickListener { v, pos ->
             when (items[pos].type) {
                 1 -> { // child directory
-                    //Todo items[pos].frag.currentStructure = currentStructure.children[pos]
-                    // 처음부터 정렬해놨으니까 이걸로 했으면 되려나
 
                     fragTransaction = fragManager.beginTransaction()
                     fragTransaction.replace(R.id.secondFragment, items[pos].frag!!)
@@ -160,8 +158,10 @@ class SecondFragmentGallery : Fragment() {
             selectFragment = SecondFragmentSelect()
             selectFragment.caller = this
             selectFragment.items = items
+            selectFragment.galleryImagesSto = galleryImagesSto
             selectFragment.initially_selected = pos
             selectFragment.spanCount = spanCount
+            selectFragment.currentStructure = currentStructure
 
             fragTransaction = fragManager.beginTransaction()
             fragTransaction.replace(R.id.secondFragment, selectFragment)
