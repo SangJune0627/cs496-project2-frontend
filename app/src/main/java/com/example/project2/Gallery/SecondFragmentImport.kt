@@ -112,7 +112,8 @@ class SecondFragmentImport : Fragment() {
         // import if bitmap isInitialzed, or search for a image again
         yesButton.setOnClickListener {
             if (this::bitmap.isInitialized) {
-                val newItem = GalleryItem(2, null, bitmap, null, null)
+//                val newItem = GalleryItem(type = 2, null, bitmap, null, null) 일단 진행을 위해 주석화
+                val newItem = GalleryItem(2, null, null, null)
                 caller.items.add(newItem)
 
                 fragManager.popBackStack()

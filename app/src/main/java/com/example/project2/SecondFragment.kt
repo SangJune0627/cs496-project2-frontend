@@ -7,9 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.Gallery
-import android.widget.GridView
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -107,7 +104,7 @@ class SecondFragment : Fragment() {
 
         secondFragmentGallery = SecondFragmentGallery()
         secondFragmentGallery.currentStructure = galleryStructure
-        secondFragmentGallery.galleryImages = galleryImages
+        secondFragmentGallery.galleryImagesSto = galleryImages
 
         // initiate secondFragment layout by adding the first gallery fragment
         fragTransaction.add(R.id.secondFragment, secondFragmentGallery)

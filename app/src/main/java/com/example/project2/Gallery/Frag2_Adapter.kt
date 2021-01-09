@@ -35,8 +35,8 @@ class Frag2_Adapter(val c: Context, val items: ArrayList<GalleryItem>, val canSe
         fun bind(item: GalleryItem, context: Context) {
             Glide.with(context)
                 .load(when (item.type) {
-                    0, 1 -> item.img
-                    2, 3 -> item.bitmap
+                    0, 1 -> item.imgAddr // 이제는 이 어댑터 안쓰니까 일단 아무거나 넣음
+                    2, 3 -> item.imgAddr
                     else -> R.drawable.ic_outline_broken_image_24
                 })
                 .into(iv!!)

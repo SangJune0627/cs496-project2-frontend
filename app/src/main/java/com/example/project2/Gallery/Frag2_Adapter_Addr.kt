@@ -12,7 +12,7 @@ import com.bumptech.glide.Glide
 import com.hurrypizza.test.Contact.ContactItem
 import com.example.project2.R
 
-class Frag2_Adapter_Addr(val c: Context, var env: ArrayList<GalleryStructure>, var sto: ArrayList<GalleryImage>, val canSelect: Boolean, val iSelected: Int?): RecyclerView.Adapter<Frag2_Adapter_Addr.Holder>() {
+class Frag2_Adapter_Addr(val c: Context, var items: ArrayList<GalleryItem>, var sto: ArrayList<GalleryImage>, val canSelect: Boolean, val iSelected: Int?): RecyclerView.Adapter<Frag2_Adapter_Addr.Holder>() {
     private val context = c
 
     var selected: ArrayList<Boolean> = ArrayList<Boolean>()
@@ -32,11 +32,11 @@ class Frag2_Adapter_Addr(val c: Context, var env: ArrayList<GalleryStructure>, v
         val iv = itemView?.findViewById<ImageView>(R.id.imageView)
         val tv = itemView?.findViewById<TextView>(R.id.tv_gallery)
 
-        fun bind(item: GalleryStructure, store: ArrayList<GalleryImage>, context: Context) {
+        fun bind(item: GalleryItem, store: ArrayList<GalleryImage>, context: Context) {
             Glide.with(context)
-                .load(when (store[item.imgAddr].type) {
-                    0 -> store[item.imgAddr].fd
-                    1 -> store[item.imgAddr].bitmap
+                .load(when (store[item.imgAddr!!].type) {
+                    0 -> store[item.imgAddr!!].fd
+                    1 -> store[item.imgAddr!!].bitmap
                     else -> R.drawable.ic_outline_broken_image_24
                 })
                 .into(iv!!)
@@ -52,7 +52,7 @@ class Frag2_Adapter_Addr(val c: Context, var env: ArrayList<GalleryStructure>, v
     }
 
     init {
-        for (i in 0 until env.size) {
+        for (i in 0 until items.size) {
             selected.add(false)
         }
         if (canSelect) {
@@ -66,11 +66,11 @@ class Frag2_Adapter_Addr(val c: Context, var env: ArrayList<GalleryStructure>, v
     }
 
     override fun getItemCount(): Int {
-        return env.size
+        return items.size
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(env[position], sto, context)
+        holder.bind(items[position], sto, context)
 
         if (canSelect) {
             when (selected[position]) {

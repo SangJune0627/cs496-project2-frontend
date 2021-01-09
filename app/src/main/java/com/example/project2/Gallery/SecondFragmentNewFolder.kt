@@ -80,9 +80,11 @@ class SecondFragmentNewFolder : Fragment() {
             newGallery.dir_current = caller.dir_current.plus(folderName).plus("/")
 
             if (items[0].type < 2) { // ordinary image or folder
-                caller.items.add(0, GalleryItem(1, items[0].img, null, folderName, newGallery))
+//                caller.items.add(0, GalleryItem(1, items[0].img, null, folderName, newGallery))
+                caller.items.add(0, GalleryItem(1, null, null, null))
             } else { // imported image or folder
-                caller.items.add(0, GalleryItem(3, null, items[0].bitmap, folderName, newGallery))
+//                caller.items.add(0, GalleryItem(3, null, items[0].bitmap, folderName, newGallery))
+                caller.items.add(0, GalleryItem(1, null, null, null))
             }
 
             // remove all the items moved into the new gallery

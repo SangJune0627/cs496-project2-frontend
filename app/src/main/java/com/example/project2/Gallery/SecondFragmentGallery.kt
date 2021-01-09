@@ -3,7 +3,6 @@ package com.example.project2.Gallery
 import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.TextView
@@ -14,12 +13,8 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.project2.SecondFragment
-import com.example.project2.Gallery.Frag2_Adapter
-import com.example.project2.Gallery.GalleryItem
-import com.example.project2.Gallery.SecondFragmentImport
 import com.example.project2.MainActivity
 import com.example.project2.R
-import com.example.project2.Gallery.SecondFragmentZoom
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -94,7 +89,7 @@ class SecondFragmentGallery : Fragment() {
     lateinit var currentStructure: GalleryStructure
 
     // 이미지 리소스 포인터
-    lateinit var galleryImages: ArrayList<GalleryImage>
+    lateinit var galleryImagesSto: ArrayList<GalleryImage>
 
     // parent Gallery class if needed
     var parent: SecondFragmentGallery? = null
@@ -113,8 +108,8 @@ class SecondFragmentGallery : Fragment() {
         }
         // convert img => item
         if (items.size == 0) {
-            for (i in imgs) {
-                items.add(GalleryItem(0, i, null, null, null))
+            imgs.forEachIndexed{ index, img ->
+                items.add(GalleryItem(type = 0, imgAddr = index, dirName = null, frag = null))
             }
         }
     }
@@ -130,24 +125,26 @@ class SecondFragmentGallery : Fragment() {
 
         gv = viewOfLayout.findViewById(R.id.gridView)
 
-        var adapter_addr = Frag2_Adapter_Addr(myContext, currentStructure.children, galleryImages, false, null)
+        var adapter_addr = Frag2_Adapter_Addr(myContext, items, galleryImagesSto, false, null)
 
-        var adapter = Frag2_Adapter(myContext, items, false, null)
-        adapter.setOnItemClickListener { v, pos ->
+//        var adapter = Frag2_Adapter(myContext, items, false, null) // 삭제되어야 함
+
+        adapter_addr.setOnItemClickListener { v, pos ->
             when (items[pos].type) {
-                1, 3 -> { // child directory
-                    items[pos].frag!!.dir_current =
-                        dir_current.plus(items[pos].dirName).plus("/")
-                    //var i = directories.indexOf(items[position].dirName)
+                1 -> { // child directory
+                    //Todo items[pos].frag.currentStructure = currentStructure.children[pos]
+                    // 처음부터 정렬해놨으니까 이걸로 했으면 되려나
+
                     fragTransaction = fragManager.beginTransaction()
                     fragTransaction.replace(R.id.secondFragment, items[pos].frag!!)
                     fragTransaction.addToBackStack(null)
                     fragTransaction.commit()
                 }
-                0, 2 -> { // image file
+                0 -> { // image file
                     zoomFragment = SecondFragmentZoom()
                     zoomFragment.items = ArrayList(items)
                     zoomFragment.imageIndex = pos
+                    zoomFragment.galleryImagesSto = galleryImagesSto
 
                     fragTransaction = fragManager.beginTransaction()
                     fragTransaction.replace(R.id.secondFragment, zoomFragment)
@@ -159,7 +156,7 @@ class SecondFragmentGallery : Fragment() {
         }
 
         // Long click for Select mode
-        adapter.setOnItemLongClickListener { v, pos ->
+        adapter_addr.setOnItemLongClickListener { v, pos ->
             selectFragment = SecondFragmentSelect()
             selectFragment.caller = this
             selectFragment.items = items
@@ -256,13 +253,11 @@ class SecondFragmentGallery : Fragment() {
             if (item.type%2 == 1) {
                 when (item.frag!!.items.size) {
                     0 -> {
-                        item.img = R.drawable.ic_outline_broken_image_24
-                        item.type = 1
+                        item.type = -1
                     }
                     else -> {
-                        item.img = item.frag!!.items[0].img
-                        item.bitmap = item.frag!!.items[0].bitmap
-                        item.type = if (item.img == null) 3 else 1
+                        item.imgAddr = item.frag!!.items[0].imgAddr
+                        item.type = 1
                     }
                 }
             }

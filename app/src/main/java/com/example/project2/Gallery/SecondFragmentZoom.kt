@@ -41,6 +41,7 @@ class SecondFragmentZoom : Fragment() {
     // image sources and an index to decide which to show first.
     var imageIndex: Int = 0
     var items: ArrayList<GalleryItem> = ArrayList<GalleryItem>()
+    lateinit var galleryImagesSto: ArrayList<GalleryImage>
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -69,12 +70,12 @@ class SecondFragmentZoom : Fragment() {
         val imgItems = ArrayList<GalleryItem>()
         for (item in items) {
             when (item.type) {
-                1 ,3 -> imageIndex--
+                1 -> imageIndex--
                 else -> imgItems.add(item)
             }
         }
 
-        val adapter = galleryPagerAdapter(requireContext(), imgItems)
+        val adapter = galleryPagerAdapter(requireContext(), imgItems, galleryImagesSto)
         vp_gallery.adapter = adapter
         vp_gallery.setCurrentItem(imageIndex, false)
 
@@ -108,7 +109,7 @@ class SecondFragmentZoom : Fragment() {
     }
 }
 
-class galleryPagerAdapter(val context: Context, val items: ArrayList<GalleryItem>): PagerAdapter() {
+class galleryPagerAdapter(val context: Context, val items: ArrayList<GalleryItem>, val sto: ArrayList<GalleryImage>): PagerAdapter() {
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
         return (view == `object` as View)
@@ -132,12 +133,9 @@ class galleryPagerAdapter(val context: Context, val items: ArrayList<GalleryItem
             when (item_current.type) {
                 0 -> {
                     Glide.with(context)
-                        .load(item_current.img)
-                        .into(imageView)
-                }
-                2 -> {
-                    Glide.with(context)
-                        .load(item_current.bitmap)
+                        .load(
+                            if (sto[item_current.imgAddr!!].type == 0) {sto[item_current.imgAddr!!].fd} else {sto[item_current.imgAddr!!].bitmap}
+                        )
                         .into(imageView)
                 }
             }
