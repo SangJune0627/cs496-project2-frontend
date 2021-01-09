@@ -56,6 +56,7 @@ class SecondFragmentGallery : Fragment() {
     var spanCount: Int = 2
 
     // initial image resources
+    // TODO: 2021-01-10 imgs in galleryFragment need to be destroyed
     var imgs = arrayListOf<Int>(
         R.raw.pic_gif,
         R.raw.haring_01,
@@ -88,6 +89,12 @@ class SecondFragmentGallery : Fragment() {
     var items: ArrayList<GalleryItem> = ArrayList()
     // current directory string shown on screen
     var dir_current = "root/"
+
+    // 자기 아래에 있는 구조를 담고있다. 이게 SecondFragment에 있는 Structure와 계속 교류할 수 있을지는 의문.
+    lateinit var currentStructure: GalleryStructure
+
+    // 이미지 리소스 포인터
+    lateinit var galleryImages: ArrayList<GalleryImage>
 
     // parent Gallery class if needed
     var parent: SecondFragmentGallery? = null

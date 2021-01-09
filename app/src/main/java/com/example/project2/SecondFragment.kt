@@ -8,10 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.Gallery
 import android.widget.GridView
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import com.example.project2.Gallery.GalleryImage
+import com.example.project2.Gallery.GalleryStructure
 import com.example.project2.Gallery.SecondFragmentGallery
 
 // TODO: Rename parameter arguments, choose names that match
@@ -38,6 +41,9 @@ class SecondFragment : Fragment() {
 
     private lateinit var secondFragmentGallery: SecondFragmentGallery
 
+    var galleryImages: ArrayList<GalleryImage> = ArrayList()
+    var galleryStructure: GalleryStructure = GalleryStructure()
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         myContext = context as FragmentActivity
@@ -49,6 +55,44 @@ class SecondFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+        // 처음 galleryImages랑 galleryStructure 초기화
+        val imgs = arrayListOf<Int>(
+            R.raw.pic_gif,
+            R.raw.haring_01,
+            R.raw.haring_02,
+            R.raw.haring_03,
+            R.raw.haring_04,
+            R.raw.haring_05,
+            R.raw.haring_06,
+            R.raw.haring_07,
+            R.raw.haring_08,
+            R.raw.haring_09,
+            R.raw.haring_10,
+            R.raw.haring_11,
+            R.raw.haring_12,
+            R.raw.haring_13,
+            R.raw.haring_14,
+            R.raw.haring_15,
+            R.raw.haring_16,
+            R.raw.haring_17,
+            R.raw.haring_18,
+            R.raw.haring_19,
+            R.raw.haring_20,
+            R.raw.haring_21,
+            R.raw.haring_22,
+            R.raw.haring_23,
+            R.raw.haring_24
+        )
+        galleryStructure.dirName = "root"
+
+        imgs.forEachIndexed {index, img_fd ->
+            galleryImages.add(GalleryImage(type = 0, fd = img_fd))
+            var childStructure = GalleryStructure()
+            childStructure.type = 0
+            childStructure.imgAddr = index
+            galleryStructure.children.add(childStructure)
+        }
+
     }
 
     override fun onCreateView(
@@ -62,6 +106,8 @@ class SecondFragment : Fragment() {
         fragTransaction = fragManager.beginTransaction()
 
         secondFragmentGallery = SecondFragmentGallery()
+        secondFragmentGallery.currentStructure = galleryStructure
+        secondFragmentGallery.galleryImages = galleryImages
 
         // initiate secondFragment layout by adding the first gallery fragment
         fragTransaction.add(R.id.secondFragment, secondFragmentGallery)
