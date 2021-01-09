@@ -76,7 +76,7 @@ class FourthFragment : Fragment() {
 
 
 //________________________ facebook login ________________________
-        FacebookSdk.sdkInitialize(myContext)
+
 
         callbackManager = CallbackManager.Factory.create()
 

@@ -67,6 +67,9 @@ class SecondFragmentSelect : Fragment() {
     // Array of items passed from the caller
     var items: ArrayList<GalleryItem> = ArrayList<GalleryItem>()
 
+    lateinit var galleryImagesSto: ArrayList<GalleryImage>
+    lateinit var currentStructure: GalleryStructure
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -93,7 +96,7 @@ class SecondFragmentSelect : Fragment() {
         gv = viewOfLayout.findViewById(R.id.selectGridView)
 
         // Listen which items to choose
-        var adapter = Frag2_Adapter(myContext, items, true, initially_selected)
+        var adapter = Frag2_Adapter_Addr(myContext, items, galleryImagesSto, true, initially_selected)
         adapter.setOnItemClickListener { v, pos ->
             if (selectedIndices.contains(pos)){
                 selectedIndices.remove(pos)
@@ -144,6 +147,10 @@ class SecondFragmentSelect : Fragment() {
                 newFolderFragment.items = items.slice(selectedIndices) as ArrayList<GalleryItem>
                 newFolderFragment.caller = caller
                 newFolderFragment.spanCount = spanCount
+                newFolderFragment.galleryImagesSto = galleryImagesSto
+                newFolderFragment.currentStructure = currentStructure
+                newFolderFragment.selectedIndices = selectedIndices
+
 
                 fragTransaction = fragManager.beginTransaction()
                 fragTransaction.replace(R.id.secondFragment, newFolderFragment)
@@ -165,6 +172,10 @@ class SecondFragmentSelect : Fragment() {
                 setDirDestFragment.items = newItems
                 setDirDestFragment.caller = caller
                 setDirDestFragment.copy_mode = true
+                setDirDestFragment.selectedIndices = selectedIndices
+
+                setDirDestFragment.galleryImagesSto = galleryImagesSto
+                setDirDestFragment.currentStructure = currentStructure
 
                 fragTransaction = fragManager.beginTransaction()
                 fragTransaction.replace(R.id.secondFragment, setDirDestFragment)
@@ -175,10 +186,21 @@ class SecondFragmentSelect : Fragment() {
         // move selected items to another directory
         moveButton.setOnClickListener {
             if (selectedIndices.size != 0) {
+                val newItems = items.slice(selectedIndices) as ArrayList<GalleryItem>
+                for (item in newItems) {
+                    if (item.type == 1) {
+                        Toast.makeText(context, "폴더는 이동할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                }
                 setDirDestFragment = SecondFragmentSetDirDest()
-                setDirDestFragment.items = items.slice(selectedIndices) as ArrayList<GalleryItem>
+                setDirDestFragment.items = newItems
                 setDirDestFragment.caller = caller
                 setDirDestFragment.copy_mode = false
+                setDirDestFragment.selectedIndices = selectedIndices
+
+                setDirDestFragment.galleryImagesSto = galleryImagesSto
+                setDirDestFragment.currentStructure = currentStructure
 
                 fragTransaction = fragManager.beginTransaction()
                 fragTransaction.replace(R.id.secondFragment, setDirDestFragment)
@@ -191,6 +213,7 @@ class SecondFragmentSelect : Fragment() {
             if (selectedIndices.size != 0) {
                 for (i in selectedIndices) {
                     caller.items.removeAt(i)
+                    caller.currentStructure.children.removeAt(i)
                 }
                 fragManager.popBackStack()
             }

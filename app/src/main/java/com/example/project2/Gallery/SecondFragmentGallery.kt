@@ -14,12 +14,8 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.project2.SecondFragment
-import com.example.project2.Gallery.Frag2_Adapter
-import com.example.project2.Gallery.GalleryItem
-import com.example.project2.Gallery.SecondFragmentImport
 import com.example.project2.MainActivity
 import com.example.project2.R
-import com.example.project2.Gallery.SecondFragmentZoom
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -56,6 +52,7 @@ class SecondFragmentGallery : Fragment() {
     var spanCount: Int = 2
 
     // initial image resources
+    // TODO: 2021-01-10 imgs in galleryFragment need to be destroyed
     var imgs = arrayListOf<Int>(
         R.raw.pic_gif,
         R.raw.haring_01,
@@ -89,6 +86,12 @@ class SecondFragmentGallery : Fragment() {
     // current directory string shown on screen
     var dir_current = "root/"
 
+    // 자기 아래에 있는 구조를 담고있다. 이게 SecondFragment에 있는 Structure와 계속 교류할 수 있을지는 의문.
+    lateinit var currentStructure: GalleryStructure
+
+    // 이미지 리소스 포인터
+    lateinit var galleryImagesSto: ArrayList<GalleryImage>
+
     // parent Gallery class if needed
     var parent: SecondFragmentGallery? = null
 
@@ -106,8 +109,8 @@ class SecondFragmentGallery : Fragment() {
         }
         // convert img => item
         if (items.size == 0) {
-            for (i in imgs) {
-                items.add(GalleryItem(0, i, null, null, null))
+            imgs.forEachIndexed{ index, img ->
+                items.add(GalleryItem(type = 0, imgAddr = index, dirName = null, frag = null))
             }
         }
     }
@@ -123,22 +126,24 @@ class SecondFragmentGallery : Fragment() {
 
         gv = viewOfLayout.findViewById(R.id.gridView)
 
-        var adapter = Frag2_Adapter(myContext, items, false, null)
-        adapter.setOnItemClickListener { v, pos ->
+        var adapter_addr = Frag2_Adapter_Addr(myContext, items, galleryImagesSto, false, null)
+
+//        var adapter = Frag2_Adapter(myContext, items, false, null) // 삭제되어야 함
+
+        adapter_addr.setOnItemClickListener { v, pos ->
             when (items[pos].type) {
-                1, 3 -> { // child directory
-                    items[pos].frag!!.dir_current =
-                        dir_current.plus(items[pos].dirName).plus("/")
-                    //var i = directories.indexOf(items[position].dirName)
+                1 -> { // child directory
+
                     fragTransaction = fragManager.beginTransaction()
                     fragTransaction.replace(R.id.secondFragment, items[pos].frag!!)
                     fragTransaction.addToBackStack(null)
                     fragTransaction.commit()
                 }
-                0, 2 -> { // image file
+                0 -> { // image file
                     zoomFragment = SecondFragmentZoom()
                     zoomFragment.items = ArrayList(items)
                     zoomFragment.imageIndex = pos
+                    zoomFragment.galleryImagesSto = galleryImagesSto
 
                     fragTransaction = fragManager.beginTransaction()
                     fragTransaction.replace(R.id.secondFragment, zoomFragment)
@@ -150,19 +155,23 @@ class SecondFragmentGallery : Fragment() {
         }
 
         // Long click for Select mode
-        adapter.setOnItemLongClickListener { v, pos ->
+        adapter_addr.setOnItemLongClickListener { v, pos ->
             selectFragment = SecondFragmentSelect()
             selectFragment.caller = this
             selectFragment.items = items
+            selectFragment.galleryImagesSto = galleryImagesSto
             selectFragment.initially_selected = pos
             selectFragment.spanCount = spanCount
+            selectFragment.currentStructure = currentStructure
 
             fragTransaction = fragManager.beginTransaction()
             fragTransaction.replace(R.id.secondFragment, selectFragment)
             fragTransaction.addToBackStack(null)
             fragTransaction.commit()
         }
-        gv.setAdapter(adapter)
+
+//        gv.setAdapter(adapter)
+        gv.adapter = adapter_addr
 
         val gm = GridLayoutManager(requireContext(), spanCount)
         gv.layoutManager = gm
@@ -222,6 +231,8 @@ class SecondFragmentGallery : Fragment() {
         importButton.setOnClickListener {
             importFragment = SecondFragmentImport()
             importFragment.caller = this
+            importFragment.currentStructure = currentStructure
+            importFragment.galleryImagesSto = galleryImagesSto
 
             fragTransaction = fragManager.beginTransaction()
             fragTransaction.replace(R.id.secondFragment, importFragment)
@@ -236,7 +247,7 @@ class SecondFragmentGallery : Fragment() {
     }
 
     override fun onResume() {
-//        Log.d("secondFragmentGallery", "onResume()")
+        Log.d("secondFragmentGallery", "onResume()")
         isRunning = true
 
         // refresh image and sort directories
@@ -245,13 +256,11 @@ class SecondFragmentGallery : Fragment() {
             if (item.type%2 == 1) {
                 when (item.frag!!.items.size) {
                     0 -> {
-                        item.img = R.drawable.ic_outline_broken_image_24
-                        item.type = 1
+                        item.type = -1
                     }
                     else -> {
-                        item.img = item.frag!!.items[0].img
-                        item.bitmap = item.frag!!.items[0].bitmap
-                        item.type = if (item.img == null) 3 else 1
+                        item.imgAddr = item.frag!!.items[0].imgAddr
+                        item.type = 1
                     }
                 }
             }

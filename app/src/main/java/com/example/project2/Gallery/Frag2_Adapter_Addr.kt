@@ -12,7 +12,7 @@ import com.bumptech.glide.Glide
 import com.hurrypizza.test.Contact.ContactItem
 import com.example.project2.R
 
-class Frag2_Adapter(val c: Context, val items: ArrayList<GalleryItem>, val canSelect: Boolean, val iSelected: Int?): RecyclerView.Adapter<Frag2_Adapter.Holder>() {
+class Frag2_Adapter_Addr(val c: Context, var items: ArrayList<GalleryItem>, var sto: ArrayList<GalleryImage>, val canSelect: Boolean, val iSelected: Int?): RecyclerView.Adapter<Frag2_Adapter_Addr.Holder>() {
     private val context = c
 
     var selected: ArrayList<Boolean> = ArrayList<Boolean>()
@@ -32,16 +32,16 @@ class Frag2_Adapter(val c: Context, val items: ArrayList<GalleryItem>, val canSe
         val iv = itemView?.findViewById<ImageView>(R.id.imageView)
         val tv = itemView?.findViewById<TextView>(R.id.tv_gallery)
 
-        fun bind(item: GalleryItem, context: Context) {
+        fun bind(item: GalleryItem, store: ArrayList<GalleryImage>, context: Context) {
             Glide.with(context)
-                .load(when (item.type) {
-                    0, 1 -> item.imgAddr // 이제는 이 어댑터 안쓰니까 일단 아무거나 넣음
-                    2, 3 -> item.imgAddr
+                .load(when (store[item.imgAddr!!].type) {
+                    0 -> store[item.imgAddr!!].fd
+                    1 -> store[item.imgAddr!!].bitmap
                     else -> R.drawable.ic_outline_broken_image_24
                 })
                 .into(iv!!)
             when (item.type) {
-                1, 3 -> {tv?.text = item.dirName
+                1 -> {tv?.text = item.dirName
                     tv?.setBackgroundResource(R.drawable.gallary_bg) }
                 else -> {
                     tv?.text = ""
@@ -70,7 +70,7 @@ class Frag2_Adapter(val c: Context, val items: ArrayList<GalleryItem>, val canSe
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(items[position], context)
+        holder.bind(items[position], sto, context)
 
         if (canSelect) {
             when (selected[position]) {

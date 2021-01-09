@@ -44,6 +44,11 @@ class SecondFragmentSetDirDest : Fragment() {
     var copy_mode = true
     var items: ArrayList<GalleryItem> = ArrayList<GalleryItem>()
 
+    lateinit var galleryImagesSto: ArrayList<GalleryImage>
+    lateinit var currentStructure: GalleryStructure
+
+    lateinit var selectedIndices: ArrayList<Int>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -75,9 +80,17 @@ class SecondFragmentSetDirDest : Fragment() {
             parentView.setTextColor(requireContext().getColorResCompat(android.R.attr.textColorPrimary))
             parentView.setOnClickListener {
                 caller.parent!!.items = items.plus(caller.parent!!.items) as ArrayList<GalleryItem>
+                caller.parent!!.currentStructure.children =
+                    currentStructure.children.slice(selectedIndices).plus(caller.parent!!.currentStructure.children)
+                            as ArrayList<GalleryStructure>
+
                 for (item in items) {
-                    if (item.type%2 == 1) updateFolder(item, caller.parent!!)
+//                    if (item.type == 1) updateFolder(item, caller.parent!!)
                     if (!copy_mode) caller.items.remove(item)
+                }
+
+                for (index in selectedIndices) {
+                    if (!copy_mode) caller.currentStructure.children.removeAt(index)
                 }
 
                 fragManager.popBackStack()
