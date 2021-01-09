@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.example.project2.Util.SwipeLockableViewPager
+import com.facebook.FacebookSdk
 import com.google.android.material.tabs.TabLayout
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        FacebookSdk.sdkInitialize(applicationContext)
 
         val fragmentAdapter = MyPagerAdapter(supportFragmentManager)
         val viewpager_main = findViewById<SwipeLockableViewPager>(R.id.viewpager_main)
