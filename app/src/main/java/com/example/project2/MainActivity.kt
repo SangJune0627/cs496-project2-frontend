@@ -86,24 +86,27 @@ class MyPagerAdapter(fm: FragmentManager): FragmentPagerAdapter(fm) {
     var firstFragment: FirstFragment = FirstFragment()
     var secondFragment: SecondFragment = SecondFragment()
     var thirdFragment: ThirdFragment = ThirdFragment()
+    var fourthFragment: FourthFragment = FourthFragment()
 
     override fun getItem(poisition: Int): Fragment {
         return when (poisition) {
             0 -> {firstFragment}
             1 -> {secondFragment}
-            else -> {thirdFragment}
+            2 -> {thirdFragment}
+            else -> {fourthFragment}
         }
     }
 
     override fun getCount(): Int {
-        return 3
+        return 4
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
         return when (position) {
             0 -> "연락처"
             1 -> "갤러리"
-            else-> {return "스톱워치"}
+            2 -> "게임"
+            else-> {return "계정"}
         }
     }
 }

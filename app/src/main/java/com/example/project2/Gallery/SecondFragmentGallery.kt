@@ -236,7 +236,7 @@ class SecondFragmentGallery : Fragment() {
     }
 
     override fun onResume() {
-        Log.d("secondFragmentGallery", "onResume()")
+//        Log.d("secondFragmentGallery", "onResume()")
         isRunning = true
 
         // refresh image and sort directories

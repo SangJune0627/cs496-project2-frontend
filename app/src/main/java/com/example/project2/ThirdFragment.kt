@@ -52,6 +52,10 @@ class ThirdFragment : Fragment() {
 
     private lateinit var callbackManager: CallbackManager
 
+    private var userName: String? = null
+    private var userEmail: String? = null
+    private var userImage: String? = null
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -76,43 +80,36 @@ class ThirdFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val viewOfLayout = inflater.inflate(R.layout.fragment_third, container, false)
-        FacebookSdk.sdkInitialize(myContext)
+//        FacebookSdk.sdkInitialize(myContext)
 
-        callbackManager = CallbackManager.Factory.create()
-
-        var loginButton = viewOfLayout.findViewById<LoginButton>(R.id.login_button)
-        loginButton.setPermissions(listOf("email"))
-        loginButton.setFragment(this)
-        Log.d("fick", "fock")
-        loginButton.registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
-            override fun onSuccess(result: LoginResult?) {
-                Log.d("fuck", "fack")
-                if(result?.accessToken != null) {
-                    val accessToken = result.accessToken
-                    getFacebookInfo(accessToken)
-                } else {
-                    Log.d("login","access token is null")
-                }
-//                var graphRequest = GraphRequest.newMeRequest(result?.accessToken, object: GraphRequest.GraphJSONObjectCallback {
-//                    override fun onCompleted(`object`: JSONObject?, response: GraphResponse?) {
-//                        Log.v("result", `object`.toString())
-//                    }
+//        callbackManager = CallbackManager.Factory.create()
+//
+//        var loginButton = viewOfLayout.findViewById<LoginButton>(R.id.login_button)
+//        loginButton.setPermissions(listOf("email"))
+//        loginButton.setFragment(this)
+//        Log.d("fick", "fock")
+//        loginButton.registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
+//            override fun onSuccess(result: LoginResult?) {
+//                if(result?.accessToken != null) {
+//                    val accessToken = result.accessToken
+//                    getFacebookInfo(accessToken)
+//                } else {
+//                    Log.d("login","access token is null")
 //                }
-//            )
-//                var parameters = Bundle()
-//                parameters.putString("fields", "id,name,email,gender,birthday")
-//                graphRequest.parameters = parameters
-//                graphRequest.executeAsync()
-            }
-            override fun onCancel() {
-                Log.e("Logincan", "can")
-            }
+//            }
+//            override fun onCancel() {
+//                Log.e("Logincan", "can")
+//            }
+//            override fun onError(error: FacebookException?) {
+//                Log.e("LoginErr", error.toString())
+//            }
+//        })
 
-            override fun onError(error: FacebookException?) {
-                Log.e("LoginErr", error.toString())
-            }
 
-        })
+//        var async = Async()
+//        async.execute()
+
+
 
         return viewOfLayout
     }
@@ -122,25 +119,25 @@ class ThirdFragment : Fragment() {
         callbackManager.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun getFacebookInfo(accessToken: AccessToken) {
-        val graphRequest = GraphRequest.newMeRequest(accessToken, object: GraphRequest.GraphJSONObjectCallback {
-            override fun onCompleted(resultObject: JSONObject?, response: GraphResponse?) {
-                try {
-                    val name = resultObject?.getString("name")
-                    val email = resultObject?.getString("email")
-                    val image = resultObject?.getJSONObject("picture")?.getJSONObject("data")?.getString("url")
-                    Log.d("result", "name $name + email $email + image $image")
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
-            }
-        })
-
-        var parameters = Bundle()
-        parameters.putString("fields","id,name,email,picture.width(200)")
-        graphRequest.parameters = parameters
-        graphRequest.executeAsync()
-    }
+//    private fun getFacebookInfo(accessToken: AccessToken) {
+//        val graphRequest = GraphRequest.newMeRequest(accessToken, object: GraphRequest.GraphJSONObjectCallback {
+//            override fun onCompleted(resultObject: JSONObject?, response: GraphResponse?) {
+//                try {
+//                    userName = resultObject?.getString("name")
+//                    userEmail = resultObject?.getString("email")
+//                    userImage = resultObject?.getJSONObject("picture")?.getJSONObject("data")?.getString("url")
+//                    Log.d("result", "name $userName + email $userEmail + image $userImage")
+//                } catch (e: JSONException) {
+//                    e.printStackTrace()
+//                }
+//            }
+//        })
+//
+//        var parameters = Bundle()
+//        parameters.putString("fields","id,name,email,picture.width(200)")
+//        graphRequest.parameters = parameters
+//        graphRequest.executeAsync()
+//    }
 
 
     companion object {
