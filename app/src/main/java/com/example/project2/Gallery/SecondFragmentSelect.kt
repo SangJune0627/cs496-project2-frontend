@@ -172,6 +172,10 @@ class SecondFragmentSelect : Fragment() {
                 setDirDestFragment.items = newItems
                 setDirDestFragment.caller = caller
                 setDirDestFragment.copy_mode = true
+                setDirDestFragment.selectedIndices = selectedIndices
+
+                setDirDestFragment.galleryImagesSto = galleryImagesSto
+                setDirDestFragment.currentStructure = currentStructure
 
                 fragTransaction = fragManager.beginTransaction()
                 fragTransaction.replace(R.id.secondFragment, setDirDestFragment)
@@ -182,10 +186,21 @@ class SecondFragmentSelect : Fragment() {
         // move selected items to another directory
         moveButton.setOnClickListener {
             if (selectedIndices.size != 0) {
+                val newItems = items.slice(selectedIndices) as ArrayList<GalleryItem>
+                for (item in newItems) {
+                    if (item.type == 1) {
+                        Toast.makeText(context, "폴더는 이동할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                }
                 setDirDestFragment = SecondFragmentSetDirDest()
-                setDirDestFragment.items = items.slice(selectedIndices) as ArrayList<GalleryItem>
+                setDirDestFragment.items = newItems
                 setDirDestFragment.caller = caller
                 setDirDestFragment.copy_mode = false
+                setDirDestFragment.selectedIndices = selectedIndices
+
+                setDirDestFragment.galleryImagesSto = galleryImagesSto
+                setDirDestFragment.currentStructure = currentStructure
 
                 fragTransaction = fragManager.beginTransaction()
                 fragTransaction.replace(R.id.secondFragment, setDirDestFragment)
