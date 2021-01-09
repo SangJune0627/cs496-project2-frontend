@@ -13,12 +13,19 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <ImageView
-            android:id="@+id/userImage"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            app:srcCompat="@drawable/com_facebook_profile_picture_blank_square"
-            tools:ignore="VectorDrawableCompat" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="화이팅!"
+            android:textSize="100sp"
+            android:textColor="?android:textColorPrimary"
+            android:id="@+id/userName"/>
+
+
+        <com.facebook.login.widget.ProfilePictureView
+            android:id="@+id/userProfilePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/login_button"
@@ -26,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
-            android:layout_marginBottom="30dp" />
+            android:layout_marginBottom="100dp" />
 
     </LinearLayout>
 
