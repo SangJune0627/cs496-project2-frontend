@@ -213,6 +213,7 @@ class SecondFragmentSelect : Fragment() {
             if (selectedIndices.size != 0) {
                 for (i in selectedIndices) {
                     caller.items.removeAt(i)
+                    caller.currentStructure.children.removeAt(i)
                 }
                 fragManager.popBackStack()
             }

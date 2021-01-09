@@ -51,6 +51,9 @@ class SecondFragmentImport : Fragment() {
     private lateinit var bitmap: Bitmap
     private lateinit var viewOfLayout: View
 
+    lateinit var currentStructure: GalleryStructure
+    lateinit var galleryImagesSto: ArrayList<GalleryImage>
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         myContext = context as FragmentActivity
@@ -113,8 +116,15 @@ class SecondFragmentImport : Fragment() {
         yesButton.setOnClickListener {
             if (this::bitmap.isInitialized) {
 //                val newItem = GalleryItem(type = 2, null, bitmap, null, null) 일단 진행을 위해 주석화
-                val newItem = GalleryItem(2, null, null, null)
+                val newIndex = galleryImagesSto.size // 새로운 인덱스는 옛날 길이로 하면 된다.
+                val newItem = GalleryItem(0, newIndex, null, null)
+                galleryImagesSto.add(GalleryImage(1, null, bitmap))
                 caller.items.add(newItem)
+
+                var importStructure = GalleryStructure()
+                importStructure.type = 0
+                importStructure.imgAddr = newIndex
+                currentStructure.children.add(importStructure)
 
                 fragManager.popBackStack()
             } else {

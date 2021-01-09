@@ -3,6 +3,7 @@ package com.example.project2.Gallery
 import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.TextView
@@ -230,6 +231,8 @@ class SecondFragmentGallery : Fragment() {
         importButton.setOnClickListener {
             importFragment = SecondFragmentImport()
             importFragment.caller = this
+            importFragment.currentStructure = currentStructure
+            importFragment.galleryImagesSto = galleryImagesSto
 
             fragTransaction = fragManager.beginTransaction()
             fragTransaction.replace(R.id.secondFragment, importFragment)
@@ -244,7 +247,7 @@ class SecondFragmentGallery : Fragment() {
     }
 
     override fun onResume() {
-//        Log.d("secondFragmentGallery", "onResume()")
+        Log.d("secondFragmentGallery", "onResume()")
         isRunning = true
 
         // refresh image and sort directories
