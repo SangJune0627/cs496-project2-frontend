@@ -257,3 +257,4 @@ interface RetrofitService4 {
     @Headers("Content-Type: application/json")
     @GET("/gallery")
     fun getPosts(): retrofit2.Call<Repo2>
+}

@@ -17,4 +17,6 @@
         <item>@color/ci_21</item>
         <item>@color/ci_31</item>
     </integer-array>
+
+    <color name="omok_background">#ffd400</color>
 </resources>

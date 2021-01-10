@@ -12,15 +12,15 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
-class Async : AsyncTask<Any?, Any?, Any?>() {
+class AsynchThirdFragment : AsyncTask<Any?, Any?, Any?>() {
     private var result: Repo? = null
 
     override fun doInBackground(objects: Array<Any?>): Any? {
 
-        var retrofit = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
+        var retrofit = Retrofit.Builder().baseUrl("http://192.249.18.171:3000")
             .addConverterFactory(GsonConverterFactory.create()).build()
 
-        var retrofit2 = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
+        var retrofit2 = Retrofit.Builder().baseUrl("http://192.249.18.171:3000")
             .addConverterFactory(GsonConverterFactory.create()).build()
 
         var service1 = retrofit.create(RetrofitService::class.java)
@@ -73,16 +73,12 @@ class Async : AsyncTask<Any?, Any?, Any?>() {
 
 }
 
-//data class Repo(val image_list: Array<JsonObject>, val structure: Array<JsonObject>)
-data class Repo(val data: JsonObject)
-
-
-interface RetrofitService {
+interface OmokInterfaceGET {
     @Headers("Content-Type: application/json")
-    @GET("/gallery")
+    @GET("/game/omok")
     fun getPosts(): Call<Repo>
 }
-interface RetrofitService2 {
-    @POST("/gallery")
+interface OmokInterfacePOST {
+    @POST("/game/omok")
     fun getPosts(@Body structure: GalleryStructure): Call<String>
 }
