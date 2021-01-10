@@ -31,6 +31,7 @@ class GalleryStructure {
             return root
         }
     }
+
     var type: Int = -1 // 0 for image, 1 for directory
     var imgAddr: Int = -1
     var dirName: String = ""

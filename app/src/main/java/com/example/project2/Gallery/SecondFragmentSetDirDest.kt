@@ -89,7 +89,7 @@ class SecondFragmentSetDirDest : Fragment() {
                     if (!copy_mode) caller.items.remove(item)
                 }
 
-                for (index in selectedIndices) {
+                for (index in selectedIndices.sortedDescending()) {
                     if (!copy_mode) caller.currentStructure.children.removeAt(index)
                 }
 

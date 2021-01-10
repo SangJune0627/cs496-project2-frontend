@@ -52,34 +52,6 @@ class SecondFragmentGallery : Fragment() {
     var spanCount: Int = 2
 
     // initial image resources
-    // TODO: 2021-01-10 imgs in galleryFragment need to be destroyed
-    var imgs = arrayListOf<Int>(
-        R.raw.pic_gif,
-        R.raw.haring_01,
-        R.raw.haring_02,
-        R.raw.haring_03,
-        R.raw.haring_04,
-        R.raw.haring_05,
-        R.raw.haring_06,
-        R.raw.haring_07,
-        R.raw.haring_08,
-        R.raw.haring_09,
-        R.raw.haring_10,
-        R.raw.haring_11,
-        R.raw.haring_12,
-        R.raw.haring_13,
-        R.raw.haring_14,
-        R.raw.haring_15,
-        R.raw.haring_16,
-        R.raw.haring_17,
-        R.raw.haring_18,
-        R.raw.haring_19,
-        R.raw.haring_20,
-        R.raw.haring_21,
-        R.raw.haring_22,
-        R.raw.haring_23,
-        R.raw.haring_24
-    )
 
     // GalleryItem() is similar to inode
     var items: ArrayList<GalleryItem> = ArrayList()
@@ -107,12 +79,12 @@ class SecondFragmentGallery : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-        // convert img => item
-        if (items.size == 0) {
-            imgs.forEachIndexed{ index, img ->
-                items.add(GalleryItem(type = 0, imgAddr = index, dirName = null, frag = null))
-            }
-        }
+//        // convert img => item
+//        if (items.size == 0) {
+//            imgs.forEachIndexed{ index, img ->
+//                items.add(GalleryItem(type = 0, imgAddr = index, dirName = null, frag = null))
+//            }
+//        }
     }
 
     override fun onCreateView(

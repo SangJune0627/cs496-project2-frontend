@@ -53,10 +53,10 @@ class Async : AsyncTask<Any?, Any?, Any?>() {
 //
 //        }
 
-        var retrofit = Retrofit.Builder().baseUrl("http://192.249.18.171:3000")
+        var retrofit = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
             .addConverterFactory(GsonConverterFactory.create()).build()
 
-        var retrofit2 = Retrofit.Builder().baseUrl("http://192.249.18.171:3000")
+        var retrofit2 = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
             .addConverterFactory(GsonConverterFactory.create()).build()
 
         var service1 = retrofit.create(RetrofitService::class.java)

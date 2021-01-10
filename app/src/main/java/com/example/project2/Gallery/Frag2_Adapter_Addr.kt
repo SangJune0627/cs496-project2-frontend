@@ -33,12 +33,21 @@ class Frag2_Adapter_Addr(val c: Context, var items: ArrayList<GalleryItem>, var 
         val tv = itemView?.findViewById<TextView>(R.id.tv_gallery)
 
         fun bind(item: GalleryItem, store: ArrayList<GalleryImage>, context: Context) {
+            if(item.imgAddr == -1) {
+                println(item.dirName)
+            }
             Glide.with(context)
-                .load(when (store[item.imgAddr!!].type) {
-                    0 -> store[item.imgAddr!!].fd
-                    1 -> store[item.imgAddr!!].bitmap
-                    else -> R.drawable.ic_outline_broken_image_24
-                })
+                .load(
+                    if (item.imgAddr == -1) {
+                        R.drawable.ic_outline_broken_image_24
+                    } else {
+                        when (store[item.imgAddr!!].type) {
+                            0 -> store[item.imgAddr!!].fd
+                            1 -> store[item.imgAddr!!].bitmap
+                            else -> R.drawable.ic_outline_broken_image_24
+                        }
+                    }
+                    )
                 .into(iv!!)
             when (item.type) {
                 1 -> {tv?.text = item.dirName

@@ -211,9 +211,11 @@ class SecondFragmentSelect : Fragment() {
         // delete selected items
         deleteButton.setOnClickListener {
             if (selectedIndices.size != 0) {
-                for (i in selectedIndices) {
+                for (i in selectedIndices.sortedDescending()) {
+                    Log.d("delete", "$i")
                     caller.items.removeAt(i)
                     caller.currentStructure.children.removeAt(i)
+                    Log.d("delete result structure", "${caller.currentStructure.children}")
                 }
                 fragManager.popBackStack()
             }

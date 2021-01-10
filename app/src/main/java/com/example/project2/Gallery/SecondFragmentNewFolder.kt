@@ -2,6 +2,7 @@ package com.example.project2.Gallery
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -89,13 +90,15 @@ class SecondFragmentNewFolder : Fragment() {
             var newStructure = GalleryStructure()
             newStructure.type = 1
             newStructure.dirName = folderName
+            newStructure.imgAddr = items[0].imgAddr!!
             items.forEach {
                 var imageStructure = GalleryStructure()
                 imageStructure.type = 0
                 imageStructure.imgAddr = it.imgAddr!!
                 newStructure.children.add(imageStructure)
             }
-            currentStructure.children.add(0, newStructure)
+            Log.d("add dir structure", "$newStructure")
+            Log.d("its children are", "${newStructure.children}")
             caller.items.add(0, GalleryItem(1, items[0].imgAddr, folderName, newGallery))
 
             newGallery.currentStructure = newStructure
@@ -105,9 +108,13 @@ class SecondFragmentNewFolder : Fragment() {
                 caller.items.remove(i)
             }
 
-            for (index in selectedIndices) {
+            for (index in selectedIndices.sortedDescending()) {
                 currentStructure.children.removeAt(index)
             }
+            // 이걸 맨 마지막에 했어야 했다 시발
+            currentStructure.children.add(0, newStructure)
+            Log.d("after new dir, parent:", "$currentStructure")
+            Log.d("its children are", "${currentStructure.children}")
 
             fragTransaction = fragManager.beginTransaction()
             fragTransaction.replace(R.id.secondFragment, newGallery)
