@@ -135,24 +135,26 @@ class FirstFragment : Fragment() {
             builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
             builder.setNegativeButton("Save", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog:DialogInterface, which:Int) {
-//                    var result: Repo? = null
-//                    var retrofit = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
-//                        .addConverterFactory(GsonConverterFactory.create()).build()
-//                    var service1 = retrofit.create(RetrofitService::class.java)
-//                    var call1 = service1.getPosts()
-//                    call1.enqueue(object: Callback<Repo> {
-//                        override fun onResponse(call: Call<Repo>, response: Response<Repo>) {
-//                            if (response.isSuccessful) {
-//                                result = response.body()
-//                                Log.d("response", "onResponse: 성공, \n" + result.toString())
-//                            } else {
-//                                Log.d("respose", "onResponse: 실패")
-//                            }
-//                        }
-//                        override fun onFailure(call: Call<Repo>, t: Throwable) {
-//                            Log.d("통신실패", "onFailure: " + t.message)
-//                        }
-//                    })
+
+                    var result: Repo? = null
+                    var retrofit = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
+                        .addConverterFactory(GsonConverterFactory.create()).build()
+                    var service1 = retrofit.create(RetrofitService::class.java)
+                    var call1 = service1.getPosts()
+                    call1.enqueue(object: Callback<Repo> {
+                        override fun onResponse(call: Call<Repo>, response: Response<Repo>) {
+                            if (response.isSuccessful) {
+                                result = response.body()
+                                Log.d("response", "onResponse: 성공, \n" + result.toString())
+                            } else {
+                                Log.d("respose", "onResponse: 실패")
+                            }
+                        }
+                        override fun onFailure(call: Call<Repo>, t: Throwable) {
+                            Log.d("통신실패", "onFailure: " + t.message)
+                        }
+                    })
+
                 }
             })
             builder.setPositiveButton("Load", object: DialogInterface.OnClickListener {
