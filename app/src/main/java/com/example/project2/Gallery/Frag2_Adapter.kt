@@ -1,7 +1,6 @@
 package com.example.project2.Gallery
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.hurrypizza.test.Contact.ContactItem
 import com.example.project2.R
 
 class Frag2_Adapter(val c: Context, val items: ArrayList<GalleryItem>, val canSelect: Boolean, val iSelected: Int?): RecyclerView.Adapter<Frag2_Adapter.Holder>() {

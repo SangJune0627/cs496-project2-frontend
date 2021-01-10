@@ -23,12 +23,14 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.project2.Contact.ContactAdapter
+import com.example.project2.Contact.ContactItem
 import com.google.gson.JsonObject
-import com.hurrypizza.test.Contact.ContactAdapter
-import com.hurrypizza.test.Contact.ContactItem
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Headers
 import java.util.*
 import javax.security.auth.callback.Callback
 
@@ -135,26 +137,7 @@ class FirstFragment : Fragment() {
             builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
             builder.setNegativeButton("Save", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog:DialogInterface, which:Int) {
-
-                    var result: Repo? = null
-                    var retrofit = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
-                        .addConverterFactory(GsonConverterFactory.create()).build()
-                    var service1 = retrofit.create(RetrofitService::class.java)
-                    var call1 = service1.getPosts()
-                    call1.enqueue(object: Callback<Repo> {
-                        override fun onResponse(call: Call<Repo>, response: Response<Repo>) {
-                            if (response.isSuccessful) {
-                                result = response.body()
-                                Log.d("response", "onResponse: 성공, \n" + result.toString())
-                            } else {
-                                Log.d("respose", "onResponse: 실패")
-                            }
-                        }
-                        override fun onFailure(call: Call<Repo>, t: Throwable) {
-                            Log.d("통신실패", "onFailure: " + t.message)
-                        }
-                    })
-
+                    //TODO: 화이팅
                 }
             })
             builder.setPositiveButton("Load", object: DialogInterface.OnClickListener {
@@ -267,3 +250,10 @@ class FirstFragment : Fragment() {
             }
     }
 }
+
+data class Repo2(val data: JsonObject)
+
+interface RetrofitService4 {
+    @Headers("Content-Type: application/json")
+    @GET("/gallery")
+    fun getPosts(): retrofit2.Call<Repo2>

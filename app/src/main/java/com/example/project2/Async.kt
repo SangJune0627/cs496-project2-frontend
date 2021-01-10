@@ -104,12 +104,6 @@ class Async : AsyncTask<Any?, Any?, Any?>() {
             }
         }
 
-
-
-
-
-
-
         return null
     }
 

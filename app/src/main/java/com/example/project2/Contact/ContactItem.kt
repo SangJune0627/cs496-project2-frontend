@@ -1,4 +1,4 @@
-package com.hurrypizza.test.Contact
+package com.example.project2.Contact
 
 data class ContactItem (
     var id : Int,
