@@ -1,15 +1,17 @@
 package com.example.project2
 
+import android.app.AlertDialog
 import android.content.ContentResolver
+import android.content.DialogInterface
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.telecom.Call
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,11 +19,19 @@ import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.PermissionChecker.*
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.gson.JsonObject
 import com.hurrypizza.test.Contact.ContactAdapter
 import com.hurrypizza.test.Contact.ContactItem
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
+import javax.security.auth.callback.Callback
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -44,6 +54,7 @@ class FirstFragment : Fragment() {
     private lateinit var rv_contact: RecyclerView
     private lateinit var tv_permission: TextView
     private lateinit var sv_contact: SearchView
+    private lateinit var bt_cloud: FloatingActionButton
 
     private var adapter: ContactAdapter? = null
 
@@ -65,6 +76,7 @@ class FirstFragment : Fragment() {
         tv_permission = rootview?.findViewById(R.id.tv_permission)!!
         rv_contact = rootview.findViewById(R.id.rv_contact)!!
         sv_contact = rootview.findViewById(R.id.sv_contact)!!
+        bt_cloud = rootview.findViewById(R.id.bt_cloud)!!
 
         if (checkAndRequestPermission() == true) {
             onPermissionGranted()
@@ -79,7 +91,11 @@ class FirstFragment : Fragment() {
                 override fun onClick(widget: View) {
                     if (checkAndRequestPermission()==false) {
                         if (!shouldShowRequestPermissionRationale(android.Manifest.permission.READ_CONTACTS)) {
-                            Toast.makeText(context, "권한이 거절되었습니다. 설정에서 권한을 허용해주세요.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "권한이 거절되었습니다. 설정에서 권한을 허용해주세요.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                     else {
@@ -102,16 +118,49 @@ class FirstFragment : Fragment() {
             closeSearchView()
         }
 
-        sv_contact.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        sv_contact.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
                 adapter?.filter?.filter(newText)
                 return false
             }
+
             override fun onQueryTextSubmit(newText: String?): Boolean {
                 adapter?.filter?.filter(newText)
                 return false
             }
         })
+
+        bt_cloud.setOnClickListener{
+            var builder :AlertDialog.Builder=AlertDialog.Builder(context)
+            builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
+            builder.setNegativeButton("Save", object: DialogInterface.OnClickListener {
+                override fun onClick(dialog:DialogInterface, which:Int) {
+//                    var result: Repo? = null
+//                    var retrofit = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
+//                        .addConverterFactory(GsonConverterFactory.create()).build()
+//                    var service1 = retrofit.create(RetrofitService::class.java)
+//                    var call1 = service1.getPosts()
+//                    call1.enqueue(object: Callback<Repo> {
+//                        override fun onResponse(call: Call<Repo>, response: Response<Repo>) {
+//                            if (response.isSuccessful) {
+//                                result = response.body()
+//                                Log.d("response", "onResponse: 성공, \n" + result.toString())
+//                            } else {
+//                                Log.d("respose", "onResponse: 실패")
+//                            }
+//                        }
+//                        override fun onFailure(call: Call<Repo>, t: Throwable) {
+//                            Log.d("통신실패", "onFailure: " + t.message)
+//                        }
+//                    })
+                }
+            })
+            builder.setPositiveButton("Load", object: DialogInterface.OnClickListener {
+                override fun onClick(dialog:DialogInterface, which:Int) {
+                }
+            })
+            builder.show()
+        }
 
         return rootview
     }
@@ -121,7 +170,10 @@ class FirstFragment : Fragment() {
             == PERMISSION_GRANTED) {
             return true
         } else {
-            requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS), PERMISSION_READ_CONTACT)
+            requestPermissions(
+                arrayOf(android.Manifest.permission.READ_CONTACTS),
+                PERMISSION_READ_CONTACT
+            )
             return false
         }
     }
@@ -154,17 +206,26 @@ class FirstFragment : Fragment() {
             c.moveToFirst()
             do {
                 var id: Int = c.getInt(
-                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+                )
                 var lookup: Int = c.getInt(
-                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY))
+                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY)
+                )
                 var name: String = c.getString(
-                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                )
                 var number = c.getString(
-                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                )
                 var thumb: String? = c.getString(
-                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI))
-                ContactList.add(ContactItem(id, lookup, name, number, thumb,
-                    Random().nextInt(requireContext().resources.getIntArray(R.array.contactIconColors).size)))
+                    c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI)
+                )
+                ContactList.add(
+                    ContactItem(
+                        id, lookup, name, number, thumb,
+                        Random().nextInt(requireContext().resources.getIntArray(R.array.contactIconColors).size)
+                    )
+                )
             } while (c.moveToNext())
         }
         dirty_bit = 0
