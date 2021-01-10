@@ -15,7 +15,6 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.example.project2.FirstFragment
 import com.example.project2.R
 import com.example.project2.dirty_bit
 import kotlin.collections.ArrayList
