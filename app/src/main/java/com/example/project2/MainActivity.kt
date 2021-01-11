@@ -14,6 +14,7 @@ import com.example.project2.Gallery.GalleryStructure
 import com.example.project2.Util.*
 import com.facebook.FacebookSdk
 import com.google.android.material.tabs.TabLayout
+import com.google.gson.JsonArray
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -192,6 +193,13 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     downloadedGalleryResult = response.body()
+                    val structure_Json = downloadedGalleryResult!!.data["structure"] as JsonArray
+                    val images_Json = downloadedGalleryResult!!.data["image_list"] as JsonArray
+
+                    galleryStructure = GalleryStructure.parseJson(structure_Json)
+                    galleryImages = GalleryImage.parseJson(images_Json)
+
+
                     Log.d("DownloadGallery", "onResponse: 성공, \n" + downloadedGalleryResult.toString())
                 } else {
                     Log.d("DownloadGallery", "onResponse: 실패")
