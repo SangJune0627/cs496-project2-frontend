@@ -5,7 +5,6 @@ import android.content.ContentResolver
 import android.content.DialogInterface
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.telecom.Call
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
@@ -22,19 +21,16 @@ import androidx.core.content.PermissionChecker.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.project2.Contact.AsyncContactGet
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.example.project2.Contact.ContactAdapter
 import com.example.project2.Contact.ContactItem
-import com.google.gson.JsonObject
+import com.facebook.Profile
+import com.google.gson.JsonArray
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Headers
+import retrofit2.http.*
 import java.util.*
-import javax.security.auth.callback.Callback
-
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -58,6 +54,8 @@ class FirstFragment : Fragment() {
     private lateinit var tv_permission: TextView
     private lateinit var sv_contact: SearchView
     private lateinit var bt_cloud: FloatingActionButton
+    var facebookID: String? = null
+    var downloadedContacts: ContactsBluePrint? = null
 
     private var currentContacts = arrayListOf<ContactItem>()
 
@@ -141,12 +139,11 @@ class FirstFragment : Fragment() {
             builder.setNegativeButton("Save", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog:DialogInterface, which:Int) {
                     //TODO: 화이팅
-                    var async = AsyncContactGet()
-                    async.execute(currentContacts)
                 }
             })
             builder.setPositiveButton("Load", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog:DialogInterface, which:Int) {
+                    downloadContacts()
                 }
             })
             builder.show()
@@ -255,4 +252,57 @@ class FirstFragment : Fragment() {
                 }
             }
     }
+
+    fun downloadContacts() {
+        var facebookID = "1234"
+
+        var retrofitConnectionContactsDownload = ConnectionOfContact()
+
+        var downloadCall = retrofitConnectionContactsDownload.downloadService.get(facebookID!!)
+
+        downloadCall.enqueue(object: retrofit2.Callback<ContactsBluePrint> {
+            override fun onResponse(
+                call: retrofit2.Call<ContactsBluePrint>,
+                response: Response<ContactsBluePrint>
+            ) {
+                if (response.isSuccessful) {
+                    downloadedContacts = response.body()
+                    Log.d("DownloadContacts", "onResponse: 성공, \n" + downloadedContacts.toString())
+                } else {
+                    Log.d("DownloadContacts", "onResponse: 실패")
+                }
+            }
+            override fun onFailure(call: retrofit2.Call<ContactsBluePrint>, t: Throwable) {
+                Log.d("DownloadContacts", "onFailure" + t.message)
+            }
+        })
+
+    }
+
+    fun getID(): String {
+        var myProfile = Profile.getCurrentProfile()
+        return myProfile!!.id
+    }
 }
+
+
+
+class ConnectionOfContact {
+    val url = "http://192.249.18.171:4000/"
+    var retrofit_download: Retrofit = Retrofit.Builder().baseUrl(url)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+
+    var downloadService = retrofit_download.create(GetContacts::class.java)
+}
+
+interface GetContacts {
+    @GET("contacts")
+    fun get(@Query("owner") owner: String): retrofit2.Call<ContactsBluePrint>
+}
+
+interface PostContacts {
+    @POST("contacts")
+    fun post(@Body a:String): retrofit2.Call<String>
+}
+
+data class ContactsBluePrint(val data: JsonArray)
