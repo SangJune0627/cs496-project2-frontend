@@ -25,12 +25,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.example.project2.Contact.ContactAdapter
 import com.example.project2.Contact.ContactItem
-import com.example.project2.Contact.ContactStructure
-import com.example.project2.Gallery.GalleryImage
-import com.example.project2.Gallery.GalleryStructure
 import com.facebook.Profile
 import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -145,7 +141,7 @@ class FirstFragment : Fragment() {
             builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
             builder.setNegativeButton("Save", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog:DialogInterface, which:Int) {
-                    //TODO: 화이팅
+                    uploadContacts()
                 }
             })
             builder.setPositiveButton("Load", object: DialogInterface.OnClickListener {
@@ -260,10 +256,33 @@ class FirstFragment : Fragment() {
             }
     }
 
+    fun uploadContacts(){
+        var facebookID = "1234"
+        var retrofitConnectionContactsDownload = postConnectionOfContact()
+        var postdata = Contact_list(facebookID, currentContacts)
+        var uploadCall = retrofitConnectionContactsDownload.downloadService.post(postdata)
+
+        uploadCall.enqueue(object: retrofit2.Callback<ContactsBluePrint> {
+            override fun onResponse(
+                call: retrofit2.Call<ContactsBluePrint>,
+                response: Response<ContactsBluePrint>
+            ) {
+                if (response.isSuccessful) {
+                    Log.d("DownloadContacts", "onResponse: 성공")
+                } else {
+                    Log.d("DownloadContacts", "onResponse: 실패")
+                }
+            }
+            override fun onFailure(call: retrofit2.Call<ContactsBluePrint>, t: Throwable) {
+                Log.d("DownloadContacts", "onFailure" + t.message)
+            }
+        })
+    }
+
     fun downloadContacts() {
         var facebookID = "1234"
 
-        var retrofitConnectionContactsDownload = ConnectionOfContact()
+        var retrofitConnectionContactsDownload = getConnectionOfContact()
 
         var downloadCall = retrofitConnectionContactsDownload.downloadService.get(facebookID!!)
 
@@ -289,16 +308,31 @@ class FirstFragment : Fragment() {
                             }
                         }
                         if(!alreadyexist) {
-                            templist.add(
-                                ContactItem(
-                                    each.asJsonObject["id"].toString().replace("\"","").toInt(),
-                                    each.asJsonObject["lookUp"].toString().replace("\"","").toInt(),
-                                    each.asJsonObject["name"].toString().replace("\"",""),
-                                    each.asJsonObject["number"].toString().replace("\"",""),
-                                    each.asJsonObject["thumb"].toString().replace("\"",""),
-                                    Random().nextInt(requireContext().resources.getIntArray(R.array.contactIconColors).size)
+                            if(each.asJsonObject["thumb"]==null) {
+                                templist.add(
+                                    ContactItem(
+                                        each.asJsonObject["id"].toString().replace("\"", "").toInt(),
+                                        each.asJsonObject["lookUp"].toString().replace("\"", "").toInt(),
+                                        each.asJsonObject["name"].toString().replace("\"", ""),
+                                        each.asJsonObject["number"].toString().replace("\"", ""),
+                                        null,
+                                        Random().nextInt(requireContext().resources.getIntArray(R.array.contactIconColors).size)
+                                    )
                                 )
-                            )
+                            }else{
+                                templist.add(
+                                    ContactItem(
+                                        each.asJsonObject["id"].toString().replace("\"", "")
+                                            .toInt(),
+                                        each.asJsonObject["lookUp"].toString().replace("\"", "")
+                                            .toInt(),
+                                        each.asJsonObject["name"].toString().replace("\"", ""),
+                                        each.asJsonObject["number"].toString().replace("\"", ""),
+                                        each.asJsonObject["thumb"].toString().replace("\"", ""),
+                                        Random().nextInt(requireContext().resources.getIntArray(R.array.contactIconColors).size)
+                                    )
+                                )
+                            }
                         }
                     }
                     if(templist.size>0) {
@@ -370,12 +404,20 @@ class FirstFragment : Fragment() {
 }
 
 
-class ConnectionOfContact {
+class getConnectionOfContact {
     val url = "http://192.249.18.171:4000/"
     var retrofit_download: Retrofit = Retrofit.Builder().baseUrl(url)
         .addConverterFactory(GsonConverterFactory.create()).build()
 
     var downloadService = retrofit_download.create(GetContacts::class.java)
+}
+
+class postConnectionOfContact {
+    val url = "http://192.249.18.171:4000/"
+    var retrofit_download: Retrofit = Retrofit.Builder().baseUrl(url)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+
+    var downloadService = retrofit_download.create(PostContacts::class.java)
 }
 
 interface GetContacts {
@@ -385,7 +427,8 @@ interface GetContacts {
 
 interface PostContacts {
     @POST("contacts")
-    fun post(@Body a:String): retrofit2.Call<String>
+    fun post(@Body contact_list: Contact_list): retrofit2.Call<ContactsBluePrint>
 }
 
 data class ContactsBluePrint(val data: JsonArray)
+data class Contact_list (val owner: String, val contact_list: ArrayList<ContactItem>)
