@@ -22,6 +22,7 @@ import androidx.core.content.PermissionChecker.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.project2.Contact.AsyncContactGet
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.example.project2.Contact.ContactAdapter
 import com.example.project2.Contact.ContactItem
@@ -57,6 +58,8 @@ class FirstFragment : Fragment() {
     private lateinit var tv_permission: TextView
     private lateinit var sv_contact: SearchView
     private lateinit var bt_cloud: FloatingActionButton
+
+    private var currentContacts = arrayListOf<ContactItem>()
 
     private var adapter: ContactAdapter? = null
 
@@ -138,6 +141,8 @@ class FirstFragment : Fragment() {
             builder.setNegativeButton("Save", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog:DialogInterface, which:Int) {
                     //TODO: 화이팅
+                    var async = AsyncContactGet()
+                    async.execute(currentContacts)
                 }
             })
             builder.setPositiveButton("Load", object: DialogInterface.OnClickListener {
@@ -214,6 +219,7 @@ class FirstFragment : Fragment() {
             } while (c.moveToNext())
         }
         dirty_bit = 0
+        currentContacts = ContactList
 
         adapter = ContactAdapter(requireContext(), ContactList)
         rv.adapter = adapter
@@ -249,12 +255,4 @@ class FirstFragment : Fragment() {
                 }
             }
     }
-}
-
-data class Repo2(val data: JsonObject)
-
-interface RetrofitService4 {
-    @Headers("Content-Type: application/json")
-    @GET("/gallery")
-    fun getPosts(): retrofit2.Call<Repo2>
 }
