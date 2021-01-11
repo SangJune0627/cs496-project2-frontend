@@ -16,13 +16,13 @@ class GalleryStructure {
                     "0" -> {
                         var child_image = GalleryStructure()
                         child_image.type = 0
-                        child_image.imgAddr = Integer.parseInt(jsonObject["img"].toString())
+                        child_image.imgAddr = Integer.parseInt(jsonObject["imgAddr"].toString())
                         root.children.add(child_image)
                     }
                     else -> { // 1일때
                         var child_dir = parseJson(jsonObject["children"] as JsonArray)
                         child_dir.type = 1
-                        child_dir.imgAddr = Integer.parseInt(jsonObject["img"].toString())
+                        child_dir.imgAddr = Integer.parseInt(jsonObject["imgAddr"].toString())
                         child_dir.dirName = jsonObject["dirName"].toString().replace("\"", "")
                         root.children.add(child_dir)
                     }

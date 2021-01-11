@@ -222,12 +222,12 @@ class SecondFragmentGallery : Fragment() {
             builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
             builder.setNegativeButton("Pull", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface, which:Int) {
-                    //TODO: 화이팅
+                    ((activity as MainActivity).downloadGallery())
                 }
             })
             builder.setPositiveButton("Push", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface, which:Int) {
-
+                    ((activity as MainActivity).uploadGallery())
                 }
             })
             builder.show()

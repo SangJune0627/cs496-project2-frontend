@@ -53,43 +53,6 @@ class SecondFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-//        // 처음 galleryImages랑 galleryStructure 초기화
-//        val imgs = arrayListOf<Int>(
-//            R.raw.pic_gif,
-//            R.raw.haring_01,
-//            R.raw.haring_02,
-//            R.raw.haring_03,
-//            R.raw.haring_04,
-//            R.raw.haring_05,
-//            R.raw.haring_06,
-//            R.raw.haring_07,
-//            R.raw.haring_08,
-//            R.raw.haring_09,
-//            R.raw.haring_10,
-//            R.raw.haring_11,
-//            R.raw.haring_12,
-//            R.raw.haring_13,
-//            R.raw.haring_14,
-//            R.raw.haring_15,
-//            R.raw.haring_16,
-//            R.raw.haring_17,
-//            R.raw.haring_18,
-//            R.raw.haring_19,
-//            R.raw.haring_20,
-//            R.raw.haring_21,
-//            R.raw.haring_22,
-//            R.raw.haring_23,
-//            R.raw.haring_24
-//        )
-//        galleryStructure.dirName = "root"
-//
-//        imgs.forEachIndexed {index, img_fd ->
-//            galleryImages.add(GalleryImage(type = 0, fd = img_fd))
-//            var childStructure = GalleryStructure()
-//            childStructure.type = 0
-//            childStructure.imgAddr = index
-//            galleryStructure.children.add(childStructure)
-//        }
 
     }
 
@@ -100,18 +63,18 @@ class SecondFragment : Fragment() {
         // Inflate the layout for this fragment
         viewOfLayout = inflater.inflate(R.layout.fragment_second, container, false)
 
-        fragManager = myContext.supportFragmentManager
-        fragTransaction = fragManager.beginTransaction()
 
 //        secondFragmentGallery = SecondFragmentGallery()
 //        secondFragmentGallery.currentStructure = galleryStructure
 //        secondFragmentGallery.galleryImagesSto = galleryImages
 
-        secondFragmentGallery = buildGallery(galleryStructure, galleryImages, "")
+        refresh_Gallery()
 
-        // initiate secondFragment layout by adding the first gallery fragment
-        fragTransaction.add(R.id.secondFragment, secondFragmentGallery)
-        fragTransaction.commit()
+//        secondFragmentGallery = buildGallery(galleryStructure, galleryImages, "")
+//
+//        // initiate secondFragment layout by adding the first gallery fragment
+//        fragTransaction.add(R.id.secondFragment, secondFragmentGallery)
+//        fragTransaction.commit()
 
         return viewOfLayout
     }
@@ -119,6 +82,15 @@ class SecondFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d("SecondFragment", "onResume")
+    }
+
+    fun refresh_Gallery() {
+        fragManager = myContext.supportFragmentManager
+        fragTransaction = fragManager.beginTransaction()
+        secondFragmentGallery = buildGallery(galleryStructure, galleryImages, "")
+        Log.d("buildGallery",secondFragmentGallery.currentStructure.toString())
+        fragTransaction.add(R.id.secondFragment, secondFragmentGallery)
+        fragTransaction.commit()
     }
 
     fun buildGallery(structure: GalleryStructure, store: ArrayList<GalleryImage>, dirPath: String): SecondFragmentGallery {
