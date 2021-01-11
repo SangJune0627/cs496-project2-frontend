@@ -137,19 +137,29 @@ class FirstFragment : Fragment() {
         })
 
         bt_cloud.setOnClickListener{
-            var builder :AlertDialog.Builder=AlertDialog.Builder(context)
-            builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
-            builder.setNegativeButton("Save", object: DialogInterface.OnClickListener {
-                override fun onClick(dialog:DialogInterface, which:Int) {
-                    uploadContacts()
-                }
-            })
-            builder.setPositiveButton("Load", object: DialogInterface.OnClickListener {
-                override fun onClick(dialog:DialogInterface, which:Int) {
-                    downloadContacts()
-                }
-            })
-            builder.show()
+            if (Profile.getCurrentProfile() == null) {
+                var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+                builder.setTitle("페이스북 계정 로그인이 필요합니다")
+                builder.setPositiveButton("확인", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {}
+                })
+                builder.show()
+            } else {
+                var builder :AlertDialog.Builder=AlertDialog.Builder(context)
+                builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
+                builder.setNegativeButton("Save", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog:DialogInterface, which:Int) {
+                        uploadContacts()
+                    }
+                })
+                builder.setPositiveButton("Load", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog:DialogInterface, which:Int) {
+                        downloadContacts()
+                    }
+                })
+                builder.show()
+            }
+
         }
 
         return rootview
@@ -257,7 +267,7 @@ class FirstFragment : Fragment() {
     }
 
     fun uploadContacts(){
-        var facebookID = "1234"
+        var facebookID = getID()
         var retrofitConnectionContactsDownload = postConnectionOfContact()
         var postdata = Contact_list(facebookID, currentContacts)
         var uploadCall = retrofitConnectionContactsDownload.downloadService.post(postdata)
@@ -280,7 +290,7 @@ class FirstFragment : Fragment() {
     }
 
     fun downloadContacts() {
-        var facebookID = "1234"
+        var facebookID = getID()
 
         var retrofitConnectionContactsDownload = getConnectionOfContact()
 
