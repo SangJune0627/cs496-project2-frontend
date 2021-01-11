@@ -1,6 +1,8 @@
 package com.example.project2.Gallery
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.project2.SecondFragment
 import com.example.project2.MainActivity
 import com.example.project2.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -211,6 +214,23 @@ class SecondFragmentGallery : Fragment() {
             fragTransaction.addToBackStack(null)
             fragTransaction.commit()
 
+        }
+
+        val cloudButton = viewOfLayout.findViewById<FloatingActionButton>(R.id.bt_cloud_gallery)
+        cloudButton.setOnClickListener{
+            var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+            builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
+            builder.setNegativeButton("Pull", object: DialogInterface.OnClickListener {
+                override fun onClick(dialog: DialogInterface, which:Int) {
+                    //TODO: 화이팅
+                }
+            })
+            builder.setPositiveButton("Push", object: DialogInterface.OnClickListener {
+                override fun onClick(dialog: DialogInterface, which:Int) {
+                    downloadContacts()
+                }
+            })
+            builder.show()
         }
 
         dir_display = viewOfLayout.findViewById(R.id.dir_display)

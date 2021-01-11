@@ -15,6 +15,7 @@ import com.example.project2.Util.*
 import com.facebook.FacebookSdk
 import com.google.android.material.tabs.TabLayout
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -193,7 +194,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     downloadedGalleryResult = response.body()
-                    val structure_Json = downloadedGalleryResult!!.data["structure"] as JsonArray
+                    val structure_Json = (downloadedGalleryResult!!.data["structure"] as JsonObject)["children"] as JsonArray
                     val images_Json = downloadedGalleryResult!!.data["image_list"] as JsonArray
 
                     galleryStructure = GalleryStructure.parseJson(structure_Json)
