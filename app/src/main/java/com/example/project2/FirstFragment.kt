@@ -24,6 +24,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.example.project2.Contact.ContactAdapter
 import com.example.project2.Contact.ContactItem
+import com.example.project2.Contact.ContactStructure
+import com.example.project2.Gallery.GalleryImage
+import com.example.project2.Gallery.GalleryStructure
 import com.facebook.Profile
 import com.google.gson.JsonArray
 import retrofit2.Response
@@ -268,6 +271,13 @@ class FirstFragment : Fragment() {
                 if (response.isSuccessful) {
                     downloadedContacts = response.body()
                     Log.d("DownloadContacts", "onResponse: 성공, \n" + downloadedContacts.toString())
+
+                    val contacts = downloadedContacts!!.data
+                    Log.d("DownloadContacts",contacts.toString())
+
+//                    val contactStructure = ContactStructure.parseJson(contacts_json)
+//                    Log.d("DownloadContacts", "onResponse: 성공, \n" + contactStructure.toString())
+
                 } else {
                     Log.d("DownloadContacts", "onResponse: 실패")
                 }
