@@ -1,6 +1,7 @@
 package com.example.project2
 
 import android.app.AlertDialog
+import android.content.ContentProviderOperation
 import android.content.ContentResolver
 import android.content.DialogInterface
 import android.os.Bundle
@@ -29,11 +30,13 @@ import com.example.project2.Gallery.GalleryImage
 import com.example.project2.Gallery.GalleryStructure
 import com.facebook.Profile
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -52,6 +55,7 @@ class FirstFragment : Fragment() {
     private var param2: String? = null
 
     val PERMISSION_READ_CONTACT: Int = 101
+    val PERMISSION_WRITE_CONTACT: Int = 102
 
     private lateinit var rv_contact: RecyclerView
     private lateinit var tv_permission: TextView
@@ -171,7 +175,7 @@ class FirstFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if(dirty_bit==1) {
-            Thread.sleep(100)
+            Thread.sleep(200)
             rv_contact.let { showContacts(it) }
         }
     }
@@ -272,8 +276,49 @@ class FirstFragment : Fragment() {
                     downloadedContacts = response.body()
                     Log.d("DownloadContacts", "onResponse: 성공, \n" + downloadedContacts.toString())
 
-                    val contacts = downloadedContacts!!.data
-                    Log.d("DownloadContacts",contacts.toString())
+                    var contacts = downloadedContacts!!.data
+                    var templist = arrayListOf<ContactItem>()
+                    for (each in contacts){
+                        var alreadyexist: Boolean = false
+                        for (each1 in currentContacts)
+                        {
+                            if(each.asJsonObject["number"].toString().replace("\"","").equals(each1.number))
+                            {
+                                alreadyexist=true
+                                break
+                            }
+                        }
+                        if(!alreadyexist) {
+                            templist.add(
+                                ContactItem(
+                                    each.asJsonObject["id"].toString().replace("\"","").toInt(),
+                                    each.asJsonObject["lookUp"].toString().replace("\"","").toInt(),
+                                    each.asJsonObject["name"].toString().replace("\"",""),
+                                    each.asJsonObject["number"].toString().replace("\"",""),
+                                    each.asJsonObject["thumb"].toString().replace("\"",""),
+                                    Random().nextInt(requireContext().resources.getIntArray(R.array.contactIconColors).size)
+                                )
+                            )
+                        }
+                    }
+                    if(templist.size>0) {
+                        if (checkSelfPermission(
+                                requireActivity(),
+                                android.Manifest.permission.WRITE_CONTACTS
+                            )
+                            == PERMISSION_GRANTED
+                        ) {
+                            println("승인됨")
+                        } else {
+                            requestPermissions(
+                                arrayOf(android.Manifest.permission.WRITE_CONTACTS),
+                                PERMISSION_WRITE_CONTACT
+                            )
+                        }
+                        addContact(templist)
+                        showContacts(rv_contact)
+                    }
+                    Log.d("여기다!",templist.toString())
 
 //                    val contactStructure = ContactStructure.parseJson(contacts_json)
 //                    Log.d("DownloadContacts", "onResponse: 성공, \n" + contactStructure.toString())
@@ -293,8 +338,36 @@ class FirstFragment : Fragment() {
         var myProfile = Profile.getCurrentProfile()
         return myProfile!!.id
     }
-}
 
+    fun addContact(templist:ArrayList<ContactItem>){
+        for (each in templist){
+            var list = ArrayList<ContentProviderOperation>()
+            list.add(
+                ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                    .build()
+            )
+            list.add(
+                    ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                            .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                            .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, each.name)   //이름
+                            .build()
+            )
+            list.add(
+                    ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                            .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                            .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, each.number)           //전화번호
+                            .withValue(ContactsContract.CommonDataKinds.Phone.TYPE  , ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)   //번호타입(Type_Mobile : 모바일)
+                            .build()
+            )
+            context!!.contentResolver.applyBatch(ContactsContract.AUTHORITY, list)  //주소록추가
+            list.clear()   //리스트 초기화
+        }
+    }
+}
 
 
 class ConnectionOfContact {
