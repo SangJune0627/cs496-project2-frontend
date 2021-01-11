@@ -105,8 +105,8 @@ class MainActivity : AppCompatActivity() {
             tabs_main?.getTabAt(tabIndex)?.select()
         }
 
-        downloadGallery()
-        Log.d("down", "load")
+//        downloadGallery()
+//        Log.d("down", "load")
     }
 
     override fun onRequestPermissionsResult(
