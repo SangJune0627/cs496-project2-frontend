@@ -1,38 +1,43 @@
-package com.example.project2
+package com.example.project2.Omok
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.media.Image
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.WindowManager
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridView
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getColor
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import com.example.project2.BaseApplication.Companion.blackStone
-import com.example.project2.BaseApplication.Companion.whiteStone
+import com.example.project2.BaseApplication
+import com.example.project2.R
 
+// TODO: Rename parameter arguments, choose names that match
+// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-class ThirdFragment : Fragment() {
-
+/**
+ * A simple [Fragment] subclass.
+ * Use the [ThirdFragmentGame.newInstance] factory method to
+ * create an instance of this fragment.
+ */
+class ThirdFragmentGame : Fragment() {
+    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var gridView: GridView
 
-    private var turn = blackStone
+    private var turn = BaseApplication.blackStone
     private var cellWidth = 55
     private var emptySize = 88
 //    private var omok = viewR.id.omok
@@ -45,7 +50,6 @@ class ThirdFragment : Fragment() {
         super.onAttach(context)
         myContext = context as FragmentActivity
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -53,7 +57,7 @@ class ThirdFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
     }
-
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,15 +69,15 @@ class ThirdFragment : Fragment() {
         var x = displayMetrics.widthPixels
         var y = displayMetrics.heightPixels
 
-        var omok:ImageView = view.findViewById<ImageView>(R.id.omok)
+        var omok: ImageView = view.findViewById<ImageView>(R.id.omok)
 
         Log.d("동환", "x : $x , y : $y")
 
         var bitmap = Bitmap.createBitmap(x - emptySize, x - emptySize, Bitmap.Config.ARGB_8888)
         var canvas = Canvas(bitmap)
         var paint = Paint()
-        canvas.drawColor(getColor(myContext, R.color.omok_background))
-        paint.color = getColor(myContext, R.color.black)
+        canvas.drawColor(ContextCompat.getColor(myContext, R.color.omok_background))
+        paint.color = ContextCompat.getColor(myContext, R.color.black)
         paint.strokeWidth = 1.0f
         paint.style = Paint.Style.STROKE
         for (num1 in 0..18) {
@@ -108,13 +112,13 @@ class ThirdFragment : Fragment() {
             } else {
                 var circlePaint = Paint()
                 when (turn) {
-                    blackStone -> {
-                        circlePaint.color = getColor(myContext,R.color.black)
-                        omokValue[xCount][yCount] = blackStone
+                    BaseApplication.blackStone -> {
+                        circlePaint.color = ContextCompat.getColor(myContext, R.color.black)
+                        omokValue[xCount][yCount] = BaseApplication.blackStone
                     }
-                    whiteStone -> {
-                        circlePaint.color = getColor(myContext,R.color.white)
-                        omokValue[xCount][yCount] = whiteStone
+                    BaseApplication.whiteStone -> {
+                        circlePaint.color = ContextCompat.getColor(myContext, R.color.white)
+                        omokValue[xCount][yCount] = BaseApplication.whiteStone
                     }
                 }
                 canvas.drawCircle(
@@ -132,7 +136,7 @@ class ThirdFragment : Fragment() {
                 ) {
                     Toast.makeText(myContext, "${turn}이 이겼습니다.", Toast.LENGTH_SHORT).show()
                 }
-                turn = if (turn == blackStone) whiteStone else blackStone
+                turn = if (turn == BaseApplication.blackStone) BaseApplication.whiteStone else BaseApplication.blackStone
             }
             return@setOnTouchListener false
         }
@@ -147,19 +151,18 @@ class ThirdFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment BlankFragment.
+         * @return A new instance of fragment ThirdFragmentGame.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            ThirdFragment().apply {
+            ThirdFragmentGame().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
                 }
             }
     }
-
     fun horizonCheck(x: Int, y: Int, turn: Int): Boolean {
         return (currentLeftCheck(x, y, turn) + currentRightCheck(x, y, turn) == 4)
     }
