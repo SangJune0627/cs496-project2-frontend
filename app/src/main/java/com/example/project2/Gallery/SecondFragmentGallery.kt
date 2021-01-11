@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.project2.SecondFragment
 import com.example.project2.MainActivity
 import com.example.project2.R
+import com.facebook.Profile
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // TODO: Rename parameter arguments, choose names that match
@@ -218,19 +219,29 @@ class SecondFragmentGallery : Fragment() {
 
         val cloudButton = viewOfLayout.findViewById<FloatingActionButton>(R.id.bt_cloud_gallery)
         cloudButton.setOnClickListener{
-            var builder : AlertDialog.Builder= AlertDialog.Builder(context)
-            builder.setTitle("Cloud Synchronization").setMessage("Load or Save?")
-            builder.setNegativeButton("Pull", object: DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface, which:Int) {
-                    ((activity as MainActivity).downloadGallery())
-                }
-            })
-            builder.setPositiveButton("Push", object: DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface, which:Int) {
-                    ((activity as MainActivity).uploadGallery())
-                }
-            })
-            builder.show()
+            if (Profile.getCurrentProfile() == null) {
+                var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+                builder.setTitle("페이스북 계정 로그인이 필요합니다")
+                builder.setPositiveButton("확인", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {}
+                })
+                builder.show()
+            } else {
+                var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+                builder.setTitle("클라우드 연동").setMessage("업로드하거나 다운로드하세요")
+                builder.setPositiveButton("다운로드", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {
+                        ((activity as MainActivity).downloadGallery())
+                    }
+                })
+                builder.setNegativeButton("업로드", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {
+                        ((activity as MainActivity).uploadGallery())
+                    }
+                })
+                builder.show()
+            }
+
         }
 
         dir_display = viewOfLayout.findViewById(R.id.dir_display)
