@@ -227,7 +227,7 @@ class SecondFragmentGallery : Fragment() {
             })
             builder.setPositiveButton("Push", object: DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface, which:Int) {
-                    downloadContacts()
+
                 }
             })
             builder.show()
