@@ -63,7 +63,7 @@ class ThirdFragmentGame : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        var view:View = inflater.inflate(R.layout.fragment_third, container, false)
+        var view:View = inflater.inflate(R.layout.fragment_third_game, container, false)
         var displayMetrics = DisplayMetrics()
         myContext.windowManager.defaultDisplay.getRealMetrics(displayMetrics)
         var x = displayMetrics.widthPixels
@@ -71,7 +71,7 @@ class ThirdFragmentGame : Fragment() {
 
         var omok: ImageView = view.findViewById<ImageView>(R.id.omok)
 
-        Log.d("동환", "x : $x , y : $y")
+        Log.d("Omok", "x : $x , y : $y")
 
         var bitmap = Bitmap.createBitmap(x - emptySize, x - emptySize, Bitmap.Config.ARGB_8888)
         var canvas = Canvas(bitmap)
@@ -100,7 +100,7 @@ class ThirdFragmentGame : Fragment() {
         omok.setImageBitmap(bitmap)
 
         omok.setOnTouchListener { v: View?, event: MotionEvent? ->
-            Log.d("동환", " 클릭 좌표 X : ${event?.x} / Y : ${event?.y} ")
+            Log.d("Omok", " position X : ${event?.x} / Y : ${event?.y} ")
             var x = event!!.x
             var y = event.y
 

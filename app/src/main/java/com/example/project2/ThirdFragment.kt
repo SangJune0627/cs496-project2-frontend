@@ -20,8 +20,11 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.example.project2.BaseApplication.Companion.blackStone
 import com.example.project2.BaseApplication.Companion.whiteStone
+import com.example.project2.Omok.ThirdFragmentGame
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -30,16 +33,14 @@ class ThirdFragment : Fragment() {
 
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var gridView: GridView
 
-    private var turn = blackStone
-    private var cellWidth = 55
-    private var emptySize = 88
-//    private var omok = viewR.id.omok
-
-    private var omokValue = Array(19) { Array(19) { 0 } }
+    private lateinit var viewOfLayout: View
 
     private lateinit var myContext: FragmentActivity
+    private lateinit var fragManager: FragmentManager
+    private lateinit var fragTransaction: FragmentTransaction
+
+    private lateinit var thirdFragmentGame: ThirdFragmentGame
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -54,90 +55,21 @@ class ThirdFragment : Fragment() {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        var view:View = inflater.inflate(R.layout.fragment_third, container, false)
-        var displayMetrics = DisplayMetrics()
-        myContext.windowManager.defaultDisplay.getRealMetrics(displayMetrics)
-        var x = displayMetrics.widthPixels
-        var y = displayMetrics.heightPixels
-
-        var omok:ImageView = view.findViewById<ImageView>(R.id.omok)
-
-        Log.d("동환", "x : $x , y : $y")
-
-        var bitmap = Bitmap.createBitmap(x - emptySize, x - emptySize, Bitmap.Config.ARGB_8888)
-        var canvas = Canvas(bitmap)
-        var paint = Paint()
-        canvas.drawColor(getColor(myContext, R.color.omok_background))
-        paint.color = getColor(myContext, R.color.black)
-        paint.strokeWidth = 1.0f
-        paint.style = Paint.Style.STROKE
-        for (num1 in 0..18) {
-            canvas.drawLine(
-                0.0f,
-                (cellWidth * num1).toFloat(),
-                x.toFloat(),
-                (cellWidth * num1).toFloat(),
-                paint
-            )
-            canvas.drawLine(
-                (cellWidth * num1).toFloat(),
-                0.0f,
-                (cellWidth * num1).toFloat(),
-                x.toFloat(),
-                paint
-            )
-        }
-
-        omok.setImageBitmap(bitmap)
-
-        omok.setOnTouchListener { v: View?, event: MotionEvent? ->
-            Log.d("동환", " 클릭 좌표 X : ${event?.x} / Y : ${event?.y} ")
-            var x = event!!.x
-            var y = event.y
-
-            var xCount = Math.round(x / cellWidth)
-            var yCount = Math.round(y / cellWidth)
-
-            if (omokValue[xCount][yCount] != 0) {
-                Toast.makeText(activity, "Test", Toast.LENGTH_SHORT).show()
-            } else {
-                var circlePaint = Paint()
-                when (turn) {
-                    blackStone -> {
-                        circlePaint.color = getColor(myContext,R.color.black)
-                        omokValue[xCount][yCount] = blackStone
-                    }
-                    whiteStone -> {
-                        circlePaint.color = getColor(myContext,R.color.white)
-                        omokValue[xCount][yCount] = whiteStone
-                    }
-                }
-                canvas.drawCircle(
-                    xCount * cellWidth.toFloat(),
-                    yCount * cellWidth.toFloat(),
-                    cellWidth / 2.0f,
-                    circlePaint
-                )
-                omok.setImageBitmap(bitmap)
-                if (horizonCheck(xCount, yCount, turn) || verticalCheck(
-                        xCount,
-                        yCount,
-                        turn
-                    ) || rightDownCheck(xCount, yCount, turn) || rightUpCheck(xCount, yCount, turn)
-                ) {
-                    Toast.makeText(myContext, "${turn}이 이겼습니다.", Toast.LENGTH_SHORT).show()
-                }
-                turn = if (turn == blackStone) whiteStone else blackStone
-            }
-            return@setOnTouchListener false
-        }
         // Inflate the layout for this fragment
-        return view
+        viewOfLayout = inflater.inflate(R.layout.fragment_third, container, false)
+
+        fragManager = myContext.supportFragmentManager
+        fragTransaction = fragManager.beginTransaction()
+        thirdFragmentGame = ThirdFragmentGame()
+
+        fragTransaction.add(R.id.thirdFragment, thirdFragmentGame)
+        fragTransaction.commit()
+
+        return viewOfLayout
     }
 
     companion object {
@@ -158,86 +90,5 @@ class ThirdFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
-    }
-
-    fun horizonCheck(x: Int, y: Int, turn: Int): Boolean {
-        return (currentLeftCheck(x, y, turn) + currentRightCheck(x, y, turn) == 4)
-    }
-
-    fun verticalCheck(x: Int, y: Int, turn: Int): Boolean {
-        return (currentUpCheck(x, y, turn) + currentDownCheck(x, y, turn) == 4)
-    }
-
-    fun rightUpCheck(x: Int, y: Int, turn: Int): Boolean { // 우상향
-        return (currentLeftDownCheck(x, y, turn) + currentRightUpCheck(x, y, turn) == 4)
-    }
-
-    fun rightDownCheck(x: Int, y: Int, turn: Int): Boolean { // 우하향
-        return (currentLeftUpCheck(x, y, turn) + currentRightDownCheck(x, y, turn) == 4)
-    }
-
-
-    fun currentLeftCheck(x: Int, y: Int, turn: Int): Int {
-        var count = 0
-        while (omokValue[x - 1 - count][y] == turn) {
-            count++
-        }
-        return count
-    }
-
-    fun currentRightCheck(x: Int, y: Int, turn: Int): Int {
-        var count = 0
-        while (omokValue[x + 1 + count][y] == turn) {
-            count++
-        }
-        return count
-    }
-
-    fun currentUpCheck(x: Int, y: Int, turn: Int): Int {
-        var count = 0
-        while (omokValue[x][y + 1 + count] == turn) {
-            count++
-        }
-        return count
-    }
-
-    fun currentDownCheck(x: Int, y: Int, turn: Int): Int {
-        var count = 0
-        while (omokValue[x][y - 1 - count] == turn) {
-            count++
-        }
-        return count
-    }
-
-    fun currentLeftDownCheck(x: Int, y: Int, turn: Int): Int {
-        var count = 0
-        while (omokValue[x - 1 - count][y - 1 - count] == turn) {
-            count++
-        }
-        return count
-    }
-
-    fun currentRightUpCheck(x: Int, y: Int, turn: Int): Int {
-        var count = 0
-        while (omokValue[x + 1 + count][y + 1 + count] == turn) {
-            count++
-        }
-        return count
-    }
-
-    fun currentLeftUpCheck(x: Int, y: Int, turn: Int): Int {
-        var count = 0
-        while (omokValue[x - 1 - count][y + 1 + count] == turn) {
-            count++
-        }
-        return count
-    }
-
-    fun currentRightDownCheck(x: Int, y: Int, turn: Int): Int {
-        var count = 0
-        while (omokValue[x + 1 + count][y - 1 - count] == turn) {
-            count++
-        }
-        return count
     }
 }
