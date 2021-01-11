@@ -4,6 +4,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -14,10 +15,15 @@ import com.example.project2.Gallery.GalleryStructure
 import com.example.project2.Util.SwipeLockableViewPager
 import com.facebook.FacebookSdk
 import com.google.android.material.tabs.TabLayout
+import com.google.gson.JsonObject
 import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Query
+import retrofit2.http.Url
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     var galleryStructure: GalleryStructure = GalleryStructure()
 
     var facebookID: String? = null
+    var downloadedGallery: GalleryBluePrint? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,6 +108,9 @@ class MainActivity : AppCompatActivity() {
         if (tabIndex != null) {
             tabs_main?.getTabAt(tabIndex)?.select()
         }
+
+        downloadGallery()
+        Log.d("down", "load")
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -143,26 +153,72 @@ class MainActivity : AppCompatActivity() {
 //    ____________________________________Server에 갤러리 동기화___________________________________________
 
     fun uploadGallery() {
-//TODO: 아이디를 가져와야 함.
+
     }
 
     fun downloadGallery() {
-//TODO: 아이디를 가져와야 함.
+        facebookID = "1234"
+
+        var retrofitConnectionGalleryDownload = RetrofitConnectionGalleryDownload()
+
+        var downloadCall = retrofitConnectionGalleryDownload.downloadService.get(facebookID!!)
+
+        downloadCall.enqueue(object: Callback<GalleryBluePrint> {
+            override fun onResponse(
+                call: Call<GalleryBluePrint>,
+                response: Response<GalleryBluePrint>
+            ) {
+                if (response.isSuccessful) {
+                    downloadedGallery = response.body()
+                    Log.d("DownloadGallery", "onResponse: 성공, \n" + downloadedGallery.toString())
+                } else {
+                    Log.d("DownloadGallery", "onResponse: 실패")
+                }
+            }
+            override fun onFailure(call: Call<GalleryBluePrint>, t: Throwable) {
+                Log.d("DownloadGallery", "onFailure" + t.message)
+            }
+        })
+
     }
 
 //    ____________________________ 갤러리 동기화 클래스 ______________________________
-    inner class DownloadGalleryAsync: AsyncTask<Any?, Any?, Any?>() {
-        override fun doInBackground(vararg params: Any?): Any? {
-            var retrofit_download = Retrofit.Builder().baseUrl("http://192.249.18.171:4000")
-                .addConverterFactory(GsonConverterFactory.create()).build()
-
-            var service_download = retrofit_download.create()
-        }
-
-        override fun onPostExecute(result: Any?) {
-            super.onPostExecute(result)
-        }
-    }
+//    inner class DownloadGalleryAsync: AsyncTask<Any?, Any?, Any?>() {
+//        override fun doInBackground(vararg params: Any?): Any? {
+//            var retOnPostExecute: GalleryBluePrint? = null
+//
+//            var retrofit_download = Retrofit.Builder().baseUrl("http://192.249.18.171:4000/")
+//                .addConverterFactory(GsonConverterFactory.create()).build()
+//
+//            var service_download = retrofit_download.create(DownloadService::class.java)
+//
+//            var downloadCall = service_download.get()
+//
+//            downloadCall.enqueue(object: Callback<GalleryBluePrint> {
+//                override fun onResponse(
+//                    call: Call<GalleryBluePrint>,
+//                    response: Response<GalleryBluePrint>
+//                ) {
+//                    if (response.isSuccessful) {
+//                        retOnPostExecute =  response.body()
+//                        Log.d("DownloadGallery", "onResponse: 성공, \n" + retOnPostExecute.toString())
+//                    } else {
+//                        Log.d("DownloadGallery", "onResponse: 실패")
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<GalleryBluePrint>, t: Throwable) {
+//                    Log.d("DownloadGallery", "onFailure" + t.message)
+//                }
+//            })
+//
+//            return null
+//        }
+//
+//        override fun onPostExecute(result: Any?) {
+//            super.onPostExecute(result)
+//        }
+//    }
 
     inner class UploadGalleryAsync: AsyncTask<Any?, Any?, Any?>() {
         override fun doInBackground(vararg params: Any?): Any? {
@@ -205,7 +261,17 @@ class MyPagerAdapter(fm: FragmentManager): FragmentPagerAdapter(fm) {
     }
 }
 
-interface DownloadService {
-    @GET("/gallery")
-    fun get(): Call
+class RetrofitConnectionGalleryDownload {
+    val url = "http://192.249.18.171:4000/"
+    var retrofit_download: Retrofit = Retrofit.Builder().baseUrl(url)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+
+    var downloadService = retrofit_download.create(DownloadService::class.java)
 }
+
+interface DownloadService {
+    @GET("gallery/all")
+    fun get(@Query("owner") id: String): Call<GalleryBluePrint>
+}
+
+data class GalleryBluePrint(val data: JsonObject)
