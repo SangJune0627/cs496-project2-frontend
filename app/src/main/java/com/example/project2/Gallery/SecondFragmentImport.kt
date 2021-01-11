@@ -118,7 +118,11 @@ class SecondFragmentImport : Fragment() {
 //                val newItem = GalleryItem(type = 2, null, bitmap, null, null) 일단 진행을 위해 주석화
                 val newIndex = galleryImagesSto.size // 새로운 인덱스는 옛날 길이로 하면 된다.
                 val newItem = GalleryItem(0, newIndex, null, null)
-                galleryImagesSto.add(GalleryImage(1, null, bitmap))
+                var newImage = GalleryImage(type = 1, fd = null, bitmap = bitmap, bitmapStr = null)
+                newImage.initBitmap()
+                galleryImagesSto.add(newImage)
+                print("newImage")
+                print(newImage)
                 caller.items.add(newItem)
 
                 var importStructure = GalleryStructure()

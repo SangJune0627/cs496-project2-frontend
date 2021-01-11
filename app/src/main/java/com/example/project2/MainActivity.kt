@@ -13,6 +13,7 @@ import com.example.project2.Gallery.GalleryImage
 import com.example.project2.Gallery.GalleryStructure
 import com.example.project2.Util.*
 import com.facebook.FacebookSdk
+import com.facebook.Profile
 import com.google.android.material.tabs.TabLayout
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -153,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 //    ____________________________________Server에 갤러리 동기화___________________________________________
 
     fun uploadGallery() {
-        facebookID = "1234"
+        facebookID = Profile.getCurrentProfile().id
 
         var retrofitGalleryUpload = RetrofitGalleryUpload()
         var uploadCall = retrofitGalleryUpload.uploadService.post(
@@ -168,7 +169,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     uploadedGalleryResult = response.body()
-                    Log.d("UploadGallery", "onResponse: 성공, \n" + uploadedGalleryResult.toString())
+                    Log.d("UploadGallery", "onResponse: 성공")
                 } else {
                     Log.d("UploadGallery", "onResponse: 실패")
                 }
@@ -181,7 +182,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun downloadGallery() {
-        facebookID = "1234"
+        facebookID = Profile.getCurrentProfile().id
 
         var retrofitGalleryDownload = RetrofitGalleryDownload()
         var downloadCall = retrofitGalleryDownload.downloadService.get(facebookID!!)
@@ -204,7 +205,7 @@ class MainActivity : AppCompatActivity() {
 
                     secondFragment!!.refresh_Gallery()
 
-                    Log.d("DownloadGallery", "onResponse: 성공, \n" + downloadedGalleryResult.toString())
+                    Log.d("DownloadGallery", "onResponse: 성공")
                 } else {
                     Log.d("DownloadGallery", "onResponse: 실패")
                 }
