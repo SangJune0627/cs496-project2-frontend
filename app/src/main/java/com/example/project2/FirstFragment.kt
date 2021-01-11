@@ -103,6 +103,13 @@ class FirstFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                        if (!shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_CONTACTS)) {
+                            Toast.makeText(
+                                context,
+                                "권한이 거절되었습니다. 설정에서 권한을 허용해주세요.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                     else {
                         Toast.makeText(requireContext(), "권한이 승인되었습니다.", Toast.LENGTH_SHORT).show()
@@ -270,6 +277,7 @@ class FirstFragment : Fragment() {
         var facebookID = getID()
         var retrofitConnectionContactsDownload = postConnectionOfContact()
         var postdata = Contact_list(facebookID, currentContacts)
+        Log.d("여기",facebookID)
         var uploadCall = retrofitConnectionContactsDownload.downloadService.post(postdata)
 
         uploadCall.enqueue(object: retrofit2.Callback<ContactsBluePrint> {
@@ -304,7 +312,7 @@ class FirstFragment : Fragment() {
                 if (response.isSuccessful) {
                     downloadedContacts = response.body()
                     Log.d("DownloadContacts", "onResponse: 성공, \n" + downloadedContacts.toString())
-
+                    Log.d("DownloadContacts", downloadedContacts!!.data.toString())
                     var contacts = downloadedContacts!!.data
                     var templist = arrayListOf<ContactItem>()
                     for (each in contacts){

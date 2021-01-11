@@ -1,11 +1,15 @@
 package com.example.project2
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -24,6 +28,10 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity() {
 
     val PERMISSION_READ_CONTACT: Int = 101
+    private val multiplePermissionsCode = 100
+    private val requiredPermissions = arrayOf(
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.WRITE_CONTACTS)
 
     private var firstFragment: FirstFragment? = null
     private var secondFragment: SecondFragment? = null
@@ -41,6 +49,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        checkPermissions()
 
 
         // ______________처음 galleryImages랑 galleryStructure 초기화_____________
@@ -107,21 +117,60 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    private fun checkPermissions() {
+        //거절되었거나 아직 수락하지 않은 권한(퍼미션)을 저장할 문자열 배열 리스트
+        var rejectedPermissionList = ArrayList<String>()
+
+        //필요한 퍼미션들을 하나씩 끄집어내서 현재 권한을 받았는지 체크
+        for(permission in requiredPermissions){
+            if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                //만약 권한이 없다면 rejectedPermissionList에 추가
+                rejectedPermissionList.add(permission)
+            }
+        }
+        //거절된 퍼미션이 있다면...
+        if(rejectedPermissionList.isNotEmpty()){
+            //권한 요청!
+            val array = arrayOfNulls<String>(rejectedPermissionList.size)
+            ActivityCompat.requestPermissions(this, rejectedPermissionList.toArray(array), multiplePermissionsCode)
+        }
+    }
+
+    //권한 요청 결과 함수
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            PERMISSION_READ_CONTACT + 65636 -> { // 101+65536 (why??)
-                if (grantResults.size > 0 && grantResults[0] == PERMISSION_GRANTED) {
-                    Toast.makeText(this, "권한이 승인되었습니다.", Toast.LENGTH_SHORT).show()
-                    firstFragment?.onPermissionGranted()
+            multiplePermissionsCode -> {
+                if(grantResults.isNotEmpty()) {
+                    for((i, permission) in permissions.withIndex()) {
+                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            //권한 획득 실패
+                            Log.i("TAG", "The user has denied to $permission")
+                            Log.i("TAG", "I can't work for you anymore then. ByeBye!")
+
+                        }
+                    }
                 }
             }
         }
     }
+
+
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        when (requestCode) {
+//            PERMISSION_READ_CONTACT + 65636 -> { // 101+65536 (why??)
+//                if (grantResults.size > 0 && grantResults[0] == PERMISSION_GRANTED) {
+//                    Toast.makeText(this, "권한이 승인되었습니다.", Toast.LENGTH_SHORT).show()
+//                    firstFragment?.onPermissionGranted()
+//                }
+//            }
+//        }
+//    }
 
     override fun onBackPressed() {
         val index = tabs_main?.selectedTabPosition
