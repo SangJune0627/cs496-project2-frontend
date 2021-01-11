@@ -9,13 +9,54 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:weightSum="1">
+        android:weightSum="1"
+        android:gravity="center">
 
-        <view class="androidx.appcompat.app.AlertController$RecycleListView"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="그 상대는!"
+            android:textSize="30sp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:id="@+id/waitingTitleView"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="0.05"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/opponentRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="100dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:scrollbars="vertical"
+            android:layout_weight="0.88"/>
 
-        </view>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_weight="0.07"
+            android:orientation="horizontal"
+            android:gravity="right"
+            android:layout_marginBottom="10dp">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="방 만들기"
+                android:layout_marginRight="10dp"
+                android:id="@+id/mkRoomButton"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="새로고침"
+                android:layout_marginRight="10dp"
+                android:id="@+id/refreshButton"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

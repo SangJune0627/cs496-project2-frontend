@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentTransaction
 import com.example.project2.BaseApplication.Companion.blackStone
 import com.example.project2.BaseApplication.Companion.whiteStone
 import com.example.project2.Omok.ThirdFragmentGame
+import com.example.project2.Omok.ThirdFragmentWaiting
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -40,7 +41,7 @@ class ThirdFragment : Fragment() {
     private lateinit var fragManager: FragmentManager
     private lateinit var fragTransaction: FragmentTransaction
 
-    private lateinit var thirdFragmentGame: ThirdFragmentGame
+    private lateinit var thirdFragmentWaiting: ThirdFragmentWaiting
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -64,9 +65,9 @@ class ThirdFragment : Fragment() {
 
         fragManager = myContext.supportFragmentManager
         fragTransaction = fragManager.beginTransaction()
-        thirdFragmentGame = ThirdFragmentGame()
+        thirdFragmentWaiting = ThirdFragmentWaiting()
 
-        fragTransaction.add(R.id.thirdFragment, thirdFragmentGame)
+        fragTransaction.add(R.id.thirdFragment, thirdFragmentWaiting)
         fragTransaction.commit()
 
         return viewOfLayout

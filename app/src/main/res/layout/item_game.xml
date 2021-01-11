@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+
+    <com.facebook.login.widget.ProfilePictureView
+        android:id="@+id/opponentProfile"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_baseline_account_circle_24"
+        android:background="@drawable/ic_contact_bg"
+        android:scaleType="fitXY"
+        android:layout_centerVertical="true"/>
+
+    <LinearLayout
+        android:id="@+id/opponentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toEndOf="@id/opponentProfile"
+        android:layout_marginStart="20dp"
+        android:layout_marginVertical="5dp"
+        android:layout_toRightOf="@id/opponentProfile"
+        android:layout_marginLeft="20dp"
+        android:gravity="left">
+
+        <TextView
+            android:id="@+id/opponentName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이름!!"
+            android:textSize="40sp"
+            android:textColor="?android:textColorPrimary" />
+
+        <TextView
+            android:id="@+id/roomStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="status"
+            android:textSize="15sp"
+            android:layout_marginTop="5dp"
+            android:textColor="?android:textColorSecondary"/>
+    </LinearLayout>
+</RelativeLayout>
