@@ -13,8 +13,10 @@ import com.example.project2.Gallery.GalleryImage
 import com.example.project2.Gallery.GalleryStructure
 import com.example.project2.Util.*
 import com.facebook.FacebookSdk
+import com.facebook.Profile
 import com.google.android.material.tabs.TabLayout
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -45,29 +47,29 @@ class MainActivity : AppCompatActivity() {
         val imgs = arrayListOf<Int>(
             R.raw.pic_gif,
             R.raw.haring_01,
-            R.raw.haring_02,
-            R.raw.haring_03,
-            R.raw.haring_04,
-            R.raw.haring_05,
-            R.raw.haring_06,
-            R.raw.haring_07,
-            R.raw.haring_08,
-            R.raw.haring_09,
-            R.raw.haring_10,
-            R.raw.haring_11,
-            R.raw.haring_12,
-            R.raw.haring_13,
-            R.raw.haring_14,
-            R.raw.haring_15,
-            R.raw.haring_16,
-            R.raw.haring_17,
-            R.raw.haring_18,
-            R.raw.haring_19,
-            R.raw.haring_20,
-            R.raw.haring_21,
-            R.raw.haring_22,
-            R.raw.haring_23,
-            R.raw.haring_24
+            R.raw.haring_02
+//            R.raw.haring_03,
+//            R.raw.haring_04,
+//            R.raw.haring_05,
+//            R.raw.haring_06,
+//            R.raw.haring_07,
+//            R.raw.haring_08,
+//            R.raw.haring_09,
+//            R.raw.haring_10,
+//            R.raw.haring_11,
+//            R.raw.haring_12,
+//            R.raw.haring_13,
+//            R.raw.haring_14,
+//            R.raw.haring_15,
+//            R.raw.haring_16,
+//            R.raw.haring_17,
+//            R.raw.haring_18,
+//            R.raw.haring_19,
+//            R.raw.haring_20,
+//            R.raw.haring_21,
+//            R.raw.haring_22,
+//            R.raw.haring_23,
+//            R.raw.haring_24
         )
         galleryStructure.dirName = "root"
 
@@ -103,9 +105,6 @@ class MainActivity : AppCompatActivity() {
         if (tabIndex != null) {
             tabs_main?.getTabAt(tabIndex)?.select()
         }
-
-        downloadGallery()
-        Log.d("down", "load")
     }
 
     override fun onRequestPermissionsResult(
@@ -155,11 +154,13 @@ class MainActivity : AppCompatActivity() {
 //    ____________________________________Server에 갤러리 동기화___________________________________________
 
     fun uploadGallery() {
-        facebookID = "1234"
+        facebookID = Profile.getCurrentProfile().id
 
         var retrofitGalleryUpload = RetrofitGalleryUpload()
         var uploadCall = retrofitGalleryUpload.uploadService.post(
             Images_and_Structure(facebookID!!, galleryImages, galleryStructure))
+        println(galleryImages)
+        println(galleryStructure.children)
 
         uploadCall.enqueue(object: Callback<GalleryBluePrint> {
             override fun onResponse(
@@ -168,7 +169,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     uploadedGalleryResult = response.body()
-                    Log.d("UploadGallery", "onResponse: 성공, \n" + uploadedGalleryResult.toString())
+                    Log.d("UploadGallery", "onResponse: 성공")
                 } else {
                     Log.d("UploadGallery", "onResponse: 실패")
                 }
@@ -181,7 +182,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun downloadGallery() {
-        facebookID = "1234"
+        facebookID = Profile.getCurrentProfile().id
 
         var retrofitGalleryDownload = RetrofitGalleryDownload()
         var downloadCall = retrofitGalleryDownload.downloadService.get(facebookID!!)
@@ -193,14 +194,18 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     downloadedGalleryResult = response.body()
-                    val structure_Json = downloadedGalleryResult!!.data["structure"] as JsonArray
+                    val structure_Json = (downloadedGalleryResult!!.data["structure"] as JsonObject)["children"] as JsonArray
                     val images_Json = downloadedGalleryResult!!.data["image_list"] as JsonArray
 
                     galleryStructure = GalleryStructure.parseJson(structure_Json)
                     galleryImages = GalleryImage.parseJson(images_Json)
 
+                    secondFragment!!.galleryStructure = galleryStructure
+                    secondFragment!!.galleryImages = galleryImages
 
-                    Log.d("DownloadGallery", "onResponse: 성공, \n" + downloadedGalleryResult.toString())
+                    secondFragment!!.refresh_Gallery()
+
+                    Log.d("DownloadGallery", "onResponse: 성공")
                 } else {
                     Log.d("DownloadGallery", "onResponse: 실패")
                 }

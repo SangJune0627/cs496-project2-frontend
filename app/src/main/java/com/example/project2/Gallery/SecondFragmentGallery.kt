@@ -1,6 +1,8 @@
 package com.example.project2.Gallery
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.project2.SecondFragment
 import com.example.project2.MainActivity
 import com.example.project2.R
+import com.facebook.Profile
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -210,6 +214,33 @@ class SecondFragmentGallery : Fragment() {
             fragTransaction.replace(R.id.secondFragment, importFragment)
             fragTransaction.addToBackStack(null)
             fragTransaction.commit()
+
+        }
+
+        val cloudButton = viewOfLayout.findViewById<FloatingActionButton>(R.id.bt_cloud_gallery)
+        cloudButton.setOnClickListener{
+            if (Profile.getCurrentProfile() == null) {
+                var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+                builder.setTitle("페이스북 계정 로그인이 필요합니다")
+                builder.setPositiveButton("확인", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {}
+                })
+                builder.show()
+            } else {
+                var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+                builder.setTitle("클라우드 연동").setMessage("업로드하거나 다운로드하세요")
+                builder.setPositiveButton("다운로드", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {
+                        ((activity as MainActivity).downloadGallery())
+                    }
+                })
+                builder.setNegativeButton("업로드", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {
+                        ((activity as MainActivity).uploadGallery())
+                    }
+                })
+                builder.show()
+            }
 
         }
 

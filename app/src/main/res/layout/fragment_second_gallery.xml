@@ -1,71 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SecondFragment"
-    android:background="?attr/colorOnPrimary">
+    tools:context=".FirstFragment"
+    android:id="@+id/fg_root">
 
-    <LinearLayout
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        tools:context=".SecondFragment"
+        android:background="?attr/colorOnPrimary">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="1">
-            <TextView
-                android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.95"
-                android:text="root/"
-                android:layout_gravity="center_vertical"
-                android:layout_marginHorizontal="10dp"
-                android:textSize="20dp"
-                android:id="@+id/dir_display"/>
+                android:orientation="horizontal"
+                android:weightSum="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.95"
+                    android:text="root/"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginHorizontal="10dp"
+                    android:textSize="20dp"
+                    android:id="@+id/dir_display"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                <Button
+                android:id="@+id/importButton"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_weight="0.05"
+                android:text="Import"
+                android:layout_marginLeft="15dp"
+                android:textAllCaps="false"
+                android:textSize="10dp" />
 
-            <Button
-            android:id="@+id/importButton"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_weight="0.05"
-            android:text="Import"
-            android:layout_marginLeft="15dp"
-            android:textAllCaps="false"
-            android:textSize="10dp" />
+            </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/folderLayout">
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/gridView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:horizontalSpacing="2dp"
+                android:verticalSpacing="2dp"
+                android:numColumns="2"/>
         </LinearLayout>
+    </FrameLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/folderLayout">
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bt_cloud_gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="50dp"
+        android:layout_marginBottom="50dp"
+        app:backgroundTint="#FFFFFF"
+        app:srcCompat="@drawable/clouds"
+        app:tint="#03A9F4"
+        tools:ignore="VectorDrawableCompat" />
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Change Directory:"-->
-<!--                android:textSize="20sp"-->
-<!--                android:textStyle="bold"-->
-<!--                android:textColor="?android:textColorPrimary"-->
-<!--                />-->
-
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/gridView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:horizontalSpacing="2dp"
-            android:verticalSpacing="2dp"
-            android:numColumns="2"/>
-    </LinearLayout>
-</FrameLayout>
+</RelativeLayout>
