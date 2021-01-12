@@ -76,6 +76,19 @@ data class Challenge(val roomnumber: String, val id: String, val name: String)
 
 // for waiting a move ________________________________________________________________________
 
+class RetrofitGameWaitMove {
+    val url = "http://192.249.18.171:4000/"
+    var retrofit_wait_move: Retrofit = Retrofit.Builder().baseUrl(url)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+
+    var waitMoveService = retrofit_wait_move.create(GameWaitMoveService::class.java)
+}
+
+interface GameWaitMoveService {
+    @GET("game/movewait")
+    fun get(@Query("roomnumber") roomNumber: String): Call<GameRoomBluePrint>
+}
+
 // for sending a move ________________________________________________________________________
 
 class RetrofitGameSendMove {
@@ -83,15 +96,17 @@ class RetrofitGameSendMove {
     var retrofit_send_move: Retrofit = Retrofit.Builder().baseUrl(url)
         .addConverterFactory(GsonConverterFactory.create()).build()
 
-    var beOpponentService = retrofit_send_move.create(GameBeOpponentService::class.java)
+    var sendMoveService = retrofit_send_move.create(GameSendMoveService::class.java)
 }
 
 interface GameSendMoveService {
+    @POST("game/turn")
+    fun post(@Body move: Move): Call<GameRoomBluePrint>
 
 }
 
 
 
-data class Move(val id: String, val name: String, val roomNumber: String, val coordinates: Coordinates)
+data class Move(val id: String, val name: String, val roomnumber: String, val coordinates: Coordinates)
 
 data class Coordinates(val x: Int, val y: Int)

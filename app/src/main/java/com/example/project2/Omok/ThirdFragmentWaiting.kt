@@ -180,6 +180,8 @@ class ThirdFragmentWaiting : Fragment() {
 
                         thirdFragmentGame = ThirdFragmentGame()
                         thirdFragmentGame.roomNumber = roomNumber
+                        thirdFragmentGame.isBlack = true
+                        thirdFragmentGame.myTurn = true
 
                         fragTransaction = fragManager.beginTransaction()
                         fragTransaction.replace(R.id.thirdFragment, thirdFragmentGame)
@@ -268,6 +270,9 @@ class ThirdFragmentWaiting : Fragment() {
                                     thirdFragmentGame = ThirdFragmentGame()
                                     thirdFragmentGame.roomNumber = roomNumber
                                     thirdFragmentGame.currentOpponent = user1
+                                    thirdFragmentGame.isBlack = false
+                                    thirdFragmentGame.myTurn = false
+                                    thirdFragmentGame.waitForNextMove = true
 
                                     fragTransaction = fragManager.beginTransaction()
                                     fragTransaction.replace(R.id.thirdFragment, thirdFragmentGame)

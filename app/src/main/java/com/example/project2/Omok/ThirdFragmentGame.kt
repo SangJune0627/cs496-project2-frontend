@@ -23,14 +23,17 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.example.project2.BaseApplication
 import com.example.project2.R
-import com.example.project2.Util.GameRoomBluePrint
-import com.example.project2.Util.RetrofitGameWaitOpponent
+import com.example.project2.Util.*
+import com.facebook.Profile
 import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.security.KeyStore
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -55,15 +58,27 @@ class ThirdFragmentGame : Fragment() {
     private var omokValue = Array(19) { Array(19) { 0 } }
 
     private lateinit var myContext: FragmentActivity
+    private lateinit var fragManager: FragmentManager
+    private lateinit var fragTransaction: FragmentTransaction
+    private lateinit var thisFragment: ThirdFragmentGame
+
     private lateinit var viewOfLayout: View
+
+    private lateinit var myProfile: Profile
 
     lateinit var roomNumber: String
 
     private var waitForOpponent = true
-    private var waitForNextMove = false
+    var waitForNextMove = false
+    var initial_state = true
 
     private lateinit var waitingMessage: TextView
     var currentOpponent: User? = null
+
+    var myTurn = true
+    var isBlack = true
+    var circlePaint = Paint()
+    lateinit var canvas: Canvas
 
 
     override fun onAttach(context: Context) {
@@ -76,6 +91,8 @@ class ThirdFragmentGame : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+        myProfile = Profile.getCurrentProfile()
+        thisFragment = this
     }
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @SuppressLint("ClickableViewAccessibility")
@@ -84,6 +101,9 @@ class ThirdFragmentGame : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         viewOfLayout = inflater.inflate(R.layout.fragment_third_game, container, false)
+        fragManager = myContext.supportFragmentManager
+
+
 
         // ______________대기 메세지 띄우기______________________________________
         waitingMessage = viewOfLayout.findViewById<TextView>(R.id.waitingMessage)
@@ -93,19 +113,22 @@ class ThirdFragmentGame : Fragment() {
         if (currentOpponent == null) {
             val waitOpponentAsync = WaitOpponentAsync()
             waitOpponentAsync.execute()
+        } else {
+            waitingMessage.text = "${currentOpponent!!.name} 님과 대결 중입니다. 화이팅 하세요"
         }
 
         var displayMetrics = DisplayMetrics()
         myContext.windowManager.defaultDisplay.getRealMetrics(displayMetrics)
-        var x = displayMetrics.widthPixels
-        var y = displayMetrics.heightPixels
+        var x_pixels = displayMetrics.widthPixels
+        var y_pixels = displayMetrics.heightPixels
 
         var omok: ImageView = viewOfLayout.findViewById<ImageView>(R.id.omok)
 
-        Log.d("Omok", "x : $x , y : $y")
+        Log.d("Omok", "x : $x_pixels , y : $y_pixels")
 
-        var bitmap = Bitmap.createBitmap(x - emptySize, x - emptySize, Bitmap.Config.ARGB_8888)
-        var canvas = Canvas(bitmap)
+
+        var bitmap = Bitmap.createBitmap(x_pixels - emptySize, x_pixels - emptySize, Bitmap.Config.ARGB_8888)
+        canvas = Canvas(bitmap)
         var paint = Paint()
         canvas.drawColor(ContextCompat.getColor(myContext, R.color.omok_background))
         paint.color = ContextCompat.getColor(myContext, R.color.black)
@@ -115,7 +138,7 @@ class ThirdFragmentGame : Fragment() {
             canvas.drawLine(
                 0.0f,
                 (cellWidth * num1).toFloat(),
-                x.toFloat(),
+                x_pixels.toFloat(),
                 (cellWidth * num1).toFloat(),
                 paint
             )
@@ -123,12 +146,41 @@ class ThirdFragmentGame : Fragment() {
                 (cellWidth * num1).toFloat(),
                 0.0f,
                 (cellWidth * num1).toFloat(),
-                x.toFloat(),
+                x_pixels.toFloat(),
                 paint
             )
         }
 
         omok.setImageBitmap(bitmap)
+
+
+        omokValue.forEachIndexed {x_iter, column ->
+            column.forEachIndexed { y_iter, color ->
+                if (color == 1) {
+                    circlePaint.color = ContextCompat.getColor(myContext, R.color.black)
+                    canvas.drawCircle(x_iter * cellWidth.toFloat(),
+                        y_iter * cellWidth.toFloat(),
+                        cellWidth / 2.0f,
+                        circlePaint
+                    )
+                } else if (color == 2) {
+                    circlePaint.color = ContextCompat.getColor(myContext, R.color.white)
+                    canvas.drawCircle(x_iter * cellWidth.toFloat(),
+                        y_iter * cellWidth.toFloat(),
+                        cellWidth / 2.0f,
+                        circlePaint
+                    )
+                }
+            }
+        }
+
+
+        if (!myTurn && initial_state) {
+            val waitNextMoveAsync = WaitNextMoveAsync()
+            waitNextMoveAsync.execute()
+            initial_state = false
+        }
+
 
         omok.setOnTouchListener { v: View?, event: MotionEvent? ->
             Log.d("Omok", " position X : ${event?.x} / Y : ${event?.y} ")
@@ -141,33 +193,66 @@ class ThirdFragmentGame : Fragment() {
             if (omokValue[xCount][yCount] != 0) {
                 Toast.makeText(activity, "Test", Toast.LENGTH_SHORT).show()
             } else {
-                var circlePaint = Paint()
-                when (turn) {
-                    BaseApplication.blackStone -> {
+                if (myTurn) {
+                    if (isBlack) {
                         circlePaint.color = ContextCompat.getColor(myContext, R.color.black)
                         omokValue[xCount][yCount] = BaseApplication.blackStone
-                    }
-                    BaseApplication.whiteStone -> {
+                    } else {
                         circlePaint.color = ContextCompat.getColor(myContext, R.color.white)
                         omokValue[xCount][yCount] = BaseApplication.whiteStone
                     }
+                    canvas.drawCircle(
+                        xCount * cellWidth.toFloat(),
+                        yCount * cellWidth.toFloat(),
+                        cellWidth / 2.0f,
+                        circlePaint
+                    )
+
+
+                    var retrofitGameSendMove = RetrofitGameSendMove()
+                    var sendMoveCall = retrofitGameSendMove.sendMoveService
+                        .post(
+                            Move(
+                                roomnumber = roomNumber, id = myProfile.id, name = myProfile.name,
+                                coordinates = Coordinates(xCount, yCount)
+                            )
+                        )
+                    sendMoveCall.enqueue(object: Callback<GameRoomBluePrint> {
+                        override fun onResponse(
+                            call: Call<GameRoomBluePrint>,
+                            response: Response<GameRoomBluePrint>
+                        ) {
+                            val newRoom_Json = response.body()!!.data
+
+                            myTurn = false
+                            waitForNextMove = true
+
+                            omok.setImageBitmap(bitmap)
+                            if (horizonCheck(xCount, yCount, turn) || verticalCheck(
+                                    xCount,
+                                    yCount,
+                                    turn
+                                ) || rightDownCheck(xCount, yCount, turn) || rightUpCheck(xCount, yCount, turn)
+                            ) {
+                                Toast.makeText(myContext, "${turn}이 이겼습니다.", Toast.LENGTH_SHORT).show()
+                            }
+
+                            Log.d("wait", "async직전")
+                            var waitNextMoveAsync = WaitNextMoveAsync()
+                            waitNextMoveAsync.execute()
+
+                        }
+
+                        override fun onFailure(
+                            call: Call<GameRoomBluePrint>,
+                            t: Throwable
+                        ) {
+                            Log.d("SendMove", "onFailure" + t.message)
+                        }
+                    })
+
                 }
-                canvas.drawCircle(
-                    xCount * cellWidth.toFloat(),
-                    yCount * cellWidth.toFloat(),
-                    cellWidth / 2.0f,
-                    circlePaint
-                )
-                omok.setImageBitmap(bitmap)
-                if (horizonCheck(xCount, yCount, turn) || verticalCheck(
-                        xCount,
-                        yCount,
-                        turn
-                    ) || rightDownCheck(xCount, yCount, turn) || rightUpCheck(xCount, yCount, turn)
-                ) {
-                    Toast.makeText(myContext, "${turn}이 이겼습니다.", Toast.LENGTH_SHORT).show()
-                }
-                turn = if (turn == BaseApplication.blackStone) BaseApplication.whiteStone else BaseApplication.blackStone
+
             }
             return@setOnTouchListener false
         }
@@ -222,7 +307,60 @@ class ThirdFragmentGame : Fragment() {
 
     inner class WaitNextMoveAsync : AsyncTask<Any?, Any?, Any?>() {
         override fun doInBackground(vararg params: Any?): Any? {
-            TODO("Not yet implemented")
+            Log.d("while", "out")
+            while (waitForNextMove) {
+                Log.d("while", "in")
+                var retrofitGameWaitMove = RetrofitGameWaitMove()
+                var waitMoveCall = retrofitGameWaitMove.waitMoveService.get(roomNumber = roomNumber)
+
+                Thread.sleep(1000)
+
+                waitMoveCall.enqueue(object: Callback<GameRoomBluePrint> {
+                    override fun onResponse(
+                        call: Call<GameRoomBluePrint>,
+                        response: Response<GameRoomBluePrint>
+                    ) {
+                        val myRoom_Json = response.body()!!.data
+                        val lastMover = myRoom_Json[0].asJsonObject["turn"].toString().replace("\"", "")
+                        Log.d("lastmover", "$lastMover")
+                        Log.d("myID", myProfile.id)
+
+                        if (myProfile.id != lastMover) {
+                            val new_x = Integer.parseInt(myRoom_Json[0].asJsonObject["x"].toString())
+                            val new_y = Integer.parseInt(myRoom_Json[0].asJsonObject["y"].toString())
+                            Log.d("지영", "무브 $new_x, $new_y")
+
+                            if (isBlack) {
+                                circlePaint.color = ContextCompat.getColor(myContext, R.color.white)
+                                omokValue[new_x][new_y] = BaseApplication.whiteStone
+                            } else {
+                                circlePaint.color = ContextCompat.getColor(myContext, R.color.black)
+                                omokValue[new_x][new_y] = BaseApplication.blackStone
+                            }
+
+                            canvas.drawCircle(
+                                new_x * cellWidth.toFloat(),
+                                new_y * cellWidth.toFloat(),
+                                cellWidth / 2.0f,
+                                circlePaint
+                            )
+
+                            myTurn = true
+                            waitForNextMove = false
+
+
+                            fragTransaction = fragManager.beginTransaction()
+                            fragTransaction.detach(thisFragment).attach(thisFragment).commit()
+                        }
+
+                    }
+
+                    override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {
+                        Log.d("WaitMove", "onFailure" + t.message)
+                    }
+                })
+            }
+            return null
         }
     }
 
