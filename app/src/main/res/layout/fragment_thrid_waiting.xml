@@ -66,23 +66,6 @@
                 app:srcCompat="@drawable/refresh"
                 app:tint="#03A9F4"
                 tools:ignore="VectorDrawableCompat" />
-
-
-<!--            -->
-<!--            <Button-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="방 만들기"-->
-<!--                android:layout_marginRight="10dp"-->
-<!--                android:id="@+id/mkRoomButton"/>-->
-
-<!--            <Button-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="새로고침"-->
-<!--                android:layout_marginRight="10dp"-->
-<!--                android:id="@+id/refreshButton"/>-->
-
         </LinearLayout>
 
     </LinearLayout>
