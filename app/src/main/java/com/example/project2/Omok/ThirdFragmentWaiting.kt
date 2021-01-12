@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
-import android.util.Size
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,8 +19,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.project2.R
-import com.example.project2.Util.GameRoomBluePrint
-import com.example.project2.Util.RetrofitGameRoomDownload
+import com.example.project2.Util.*
 import com.facebook.Profile
 import com.facebook.login.widget.ProfilePictureView
 import com.google.gson.JsonObject
@@ -58,8 +56,6 @@ class ThirdFragmentWaiting : Fragment() {
     private lateinit var thirdFragmentGame: ThirdFragmentGame
 
     private var myProfile: Profile? = null
-
-    private var getRooms = true
 
     var rooms = arrayListOf<Room>(Room(roomnumber = 1, user1 = User(name = "박상준", id = "2905335259711277"), user2 = null, state = "wait"))
 
@@ -128,23 +124,28 @@ class ThirdFragmentWaiting : Fragment() {
                         response: Response<GameRoomBluePrint>
                     ) {
                         rooms = ArrayList() // room 초기화
+                        if (response.isSuccessful) {
 
-                        val roomList_Json = response.body()!!.data
-                        roomList_Json.forEach{
-                            val roomnumber = Integer.parseInt(it.asJsonObject["roomnumber"].toString())
-                            val user1 = User(id = (it.asJsonObject["user1"] as JsonObject)["id"].toString(),
-                            name = (it.asJsonObject["user1"] as JsonObject)["name"].toString().replace("\"", ""))
-                            val state = it.asJsonObject["state"].toString().replace("\"", "")
-                            var user2: User? = null
-                            if (state == "play") {
-                                user2 = User(id = (it.asJsonObject["user2"] as JsonObject)["id"].toString(),
-                                    name = (it.asJsonObject["user2"] as JsonObject)["name"].toString().replace("\"", ""))
+                            val roomList_Json = response.body()!!.data
+                            println(roomList_Json)
+                            roomList_Json.forEach{
+                                val roomnumber = Integer.parseInt(it.asJsonObject["roomnumber"].toString())
+                                val user1 = User(id = (it.asJsonObject["user1"] as JsonObject)["id"].toString(),
+                                    name = (it.asJsonObject["user1"] as JsonObject)["name"].toString().replace("\"", ""))
+                                val state = it.asJsonObject["state"].toString().replace("\"", "")
+                                var user2: User? = null
+                                if (state == "play") {
+                                    user2 = User(id = (it.asJsonObject["user2"] as JsonObject)["id"].toString(),
+                                        name = (it.asJsonObject["user2"] as JsonObject)["name"].toString().replace("\"", ""))
+                                }
+                                rooms.add(Room(roomnumber, user1, user2, state))
                             }
-                            rooms.add(Room(roomnumber, user1, user2, state))
+                            fragTransaction = fragManager.beginTransaction()
+                            fragTransaction.detach(thisFragment).attach(thisFragment).commit()
+
+                        } else {
+                            Log.d("DownloadRoom", "onResponse: 실패")
                         }
-                        println(rooms)
-                        fragTransaction = fragManager.beginTransaction()
-                        fragTransaction.detach(thisFragment).attach(thisFragment).commit()
                     }
 
                     override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {
@@ -154,8 +155,150 @@ class ThirdFragmentWaiting : Fragment() {
             }
         }
         // __ 방만들기 버튼 __________________________________________________________________________________________
+        var makeRoomButton = viewOfLayout.findViewById<Button>(R.id.mkRoomButton)
+        makeRoomButton.setOnClickListener {
+            myProfile = Profile.getCurrentProfile()
+
+            if (myProfile == null) {
+                var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+                builder.setTitle("페이스북 계정 로그인이 필요합니다")
+                builder.setPositiveButton("확인", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {}
+                })
+                builder.show()
+            } else {
+                var retrofitGameMakeRoom = RetrofitGameMakeRoom()
+                var makeRoomCall = retrofitGameMakeRoom.makeRoomService.post(User(id = myProfile!!.id, name = myProfile!!.name))
+
+                makeRoomCall.enqueue(object: Callback<GameRoomBluePrint> {
+                    override fun onResponse(
+                        call: Call<GameRoomBluePrint>,
+                        response: Response<GameRoomBluePrint>
+                    ) {
+                        val newRoom_Json = response.body()!!.data // 이번에 만들어진 방만 담고있는 리스트
+                        val roomNumber = newRoom_Json[0].asJsonObject["roomnumber"].toString()
+
+                        thirdFragmentGame = ThirdFragmentGame()
+                        thirdFragmentGame.roomNumber = roomNumber
+
+                        fragTransaction = fragManager.beginTransaction()
+                        fragTransaction.replace(R.id.thirdFragment, thirdFragmentGame)
+                        fragTransaction.addToBackStack(null)
+                        fragTransaction.commit()
+
+                    }
+
+                    override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {
+                        Log.d("MakeRoom", "onFailure" + t.message)
+                    }
+                })
+            }
+        }
 
         return viewOfLayout
+    }
+
+    inner class OpponentAdapter(val context: Context, val rooms: ArrayList<Room>) : RecyclerView.Adapter<OpponentAdapter.Holder>() {
+        private var displayOpponents = rooms
+
+        inner class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView!!) {
+            val profileImg = itemView?.findViewById<ProfilePictureView>(R.id.opponentProfile)
+            val name = itemView?.findViewById<TextView>(R.id.opponentName)
+            val status = itemView?.findViewById<TextView>(R.id.roomStatus)
+
+            @SuppressLint("SetTextI18n")
+            fun bind (room: Room) {
+                profileImg?.profileId = room.user1.id
+                status?.text = "${room.roomnumber}번방: " + room.state
+                if (room.state == "wait") {
+                    name?.text = room.user1.name + "!!"
+
+                } else {
+                    name?.text = room.user1.name + " VS " + room.user2!!.name
+                    name?.textSize = 20.0F
+                    name?.gravity = Gravity.CENTER
+                }
+            }
+        }
+
+        init {
+            displayOpponents = rooms
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+            val view = LayoutInflater.from(context).inflate(R.layout.item_game, parent, false)
+            return Holder(view)
+        }
+
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            holder.bind(displayOpponents[position])
+            holder.itemView.setOnClickListener {
+                var myProfile = Profile.getCurrentProfile()
+
+                if (myProfile == null) {
+                    var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+                    builder.setTitle("페이스북 계정 로그인이 필요합니다")
+                    builder.setPositiveButton("확인", object: DialogInterface.OnClickListener {
+                        override fun onClick(dialog: DialogInterface, which:Int) {}
+                    })
+                    builder.show()
+                } else {
+                    var retrofitGameBeOpponent = RetrofitGameBeOpponent()
+                    var beOpponentCall = retrofitGameBeOpponent.beOpponentService
+                        .post(Challenge(roomnumber = displayOpponents[position].roomnumber.toString(),
+                            id = myProfile.id, name = myProfile.name))
+
+                    beOpponentCall.enqueue(object: Callback<GameRoomBluePrint> {
+                        override fun onResponse(
+                            call: Call<GameRoomBluePrint>,
+                            response: Response<GameRoomBluePrint>
+                        ) {
+                            if (response.isSuccessful) {
+                                val myRoom_Json = response.body()!!.data
+                                val roomNumber = myRoom_Json[0].asJsonObject["roomnumber"].toString()
+
+                                val user1 = User(id = (myRoom_Json[0].asJsonObject["user1"] as JsonObject)["id"].toString(),
+                                    name = (myRoom_Json[0].asJsonObject["user1"] as JsonObject)["name"].toString().replace("\"", ""))
+                                val user2 = User(id = (myRoom_Json[0].asJsonObject["user2"] as JsonObject)["id"].toString(),
+                                    name = (myRoom_Json[0].asJsonObject["user2"] as JsonObject)["name"].toString().replace("\"", ""))
+
+                                val state = myRoom_Json[0].asJsonObject["state"].toString().replace("\"", "")
+
+                                if (user2.id == myProfile.id) {
+                                    thirdFragmentGame = ThirdFragmentGame()
+                                    thirdFragmentGame.roomNumber = roomNumber
+                                    thirdFragmentGame.currentOpponent = user1
+
+                                    fragTransaction = fragManager.beginTransaction()
+                                    fragTransaction.replace(R.id.thirdFragment, thirdFragmentGame)
+                                    fragTransaction.addToBackStack(null)
+                                    fragTransaction.commit()
+                                } else {
+                                    var builder : AlertDialog.Builder= AlertDialog.Builder(context)
+                                    builder.setTitle("방이 가득 찼습니다.")
+                                    builder.setPositiveButton("다음 기회를 노린다", object: DialogInterface.OnClickListener {
+                                        override fun onClick(dialog: DialogInterface, which:Int) {}
+                                    })
+                                    builder.show()
+                                }
+
+                            } else {
+                                Log.d("Be Opponent", "Fail onResponse")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {
+                            Log.d("BeOpponent", "onFailure" + t.message)
+                        }
+                    })
+                }
+
+            }
+        }
+
+        override fun getItemCount(): Int {
+            return rooms.size
+        }
     }
 
     companion object {
@@ -179,46 +322,3 @@ class ThirdFragmentWaiting : Fragment() {
     }
 }
 
-class OpponentAdapter(val context: Context, val rooms: ArrayList<Room>) : RecyclerView.Adapter<OpponentAdapter.Holder>() {
-    private var displayOpponents = rooms
-
-    class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView!!) {
-        val profileImg = itemView?.findViewById<ProfilePictureView>(R.id.opponentProfile)
-        val name = itemView?.findViewById<TextView>(R.id.opponentName)
-        val status = itemView?.findViewById<TextView>(R.id.roomStatus)
-
-        @SuppressLint("SetTextI18n")
-        fun bind (room: Room) {
-            profileImg?.profileId = room.user1.id
-            status?.text = "${room.roomnumber}번방: " + room.state
-            if (room.state == "wait") {
-                name?.text = room.user1.name + "!!"
-
-            } else {
-                name?.text = room.user1.name + " VS " + room.user2!!.name
-                name?.textSize = 20.0F
-                name?.gravity = Gravity.CENTER
-            }
-        }
-    }
-
-    init {
-        displayOpponents = rooms
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_game, parent, false)
-        return Holder(view)
-    }
-
-    override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(displayOpponents[position])
-        holder.itemView.setOnClickListener {
-// TODO 눌리면 게임 시작하게 해야 함
-        }
-    }
-
-    override fun getItemCount(): Int {
-        return rooms.size
-    }
-}

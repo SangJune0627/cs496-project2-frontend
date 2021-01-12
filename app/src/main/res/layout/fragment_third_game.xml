@@ -4,7 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Omok.ThirdFragmentGame">
+    tools:context=".Omok.ThirdFragmentGame"
+    android:background="?attr/colorOnPrimary">
+
+
+    <TextView
+        android:id="@+id/waitingMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="상대방을 기다리는 중입니다.."
+        app:layout_constraintBottom_toTopOf="@+id/omok"
+        tools:layout_editor_absoluteX="120dp" />
 
     <ImageView
         android:id="@+id/omok"

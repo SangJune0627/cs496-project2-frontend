@@ -177,6 +177,7 @@ class MainActivity : AppCompatActivity() {
         when (index) {
             0 -> if (firstFragment?.closeSearchView() == true) finish()
             1 -> if (supportFragmentManager.backStackEntryCount > 0) supportFragmentManager.popBackStack() else finish()
+            2 -> if (supportFragmentManager.backStackEntryCount > 0) supportFragmentManager.popBackStack() else finish()
             else -> finish()
         }
     }
