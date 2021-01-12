@@ -104,13 +104,8 @@ class ThirdFragmentGame : Fragment() {
         viewOfLayout = inflater.inflate(R.layout.fragment_third_game, container, false)
         fragManager = myContext.supportFragmentManager
 
-
-
-        // ______________대기 메세지 띄우기______________________________________
-        waitingMessage = viewOfLayout.findViewById<TextView>(R.id.waitingMessage)
-        waitingMessage.text = "${roomNumber}번 방에서 상대방을 찾는 중입니다."
-
         // ______________대기하기________________________________________________
+        waitingMessage = viewOfLayout.findViewById<TextView>(R.id.waitingMessage)
         if (currentOpponent == null) {
             val waitOpponentAsync = WaitOpponentAsync()
             waitOpponentAsync.execute()
@@ -258,6 +253,12 @@ class ThirdFragmentGame : Fragment() {
         return viewOfLayout
     }
 
+    override fun onResume() {
+        super.onResume()
+        // ______________대기 메세지 띄우기______________________________________
+        waitingMessage.text = "${roomNumber}번 방에서 상대방을 찾는 중입니다."
+    }
+
     inner class WaitOpponentAsync : AsyncTask<Any?, Any?, Any?>() {
 
         override fun doInBackground(vararg params: Any?): Any? {
@@ -324,31 +325,59 @@ class ThirdFragmentGame : Fragment() {
                         Log.d("myID", myProfile.id)
 
                         if (myProfile.id != lastMover && waitForNextMove) {
+                            Log.d("get coord", "$myRoom_Json")
                             val new_x = Integer.parseInt(myRoom_Json[0].asJsonObject["x"].toString())
                             val new_y = Integer.parseInt(myRoom_Json[0].asJsonObject["y"].toString())
                             Log.d("지영", "무브 $new_x, $new_y")
 
-                            if (isBlack) {
-                                circlePaint.color = ContextCompat.getColor(myContext, R.color.white)
-                                omokValue[new_x][new_y] = BaseApplication.whiteStone
+                            // 상대 기권
+                            if (new_x < 0) {
+                                waitForNextMove = false
+                                omokValue = Array(19) { Array(19) { 0 } } // 바둑판 엎기
+
+                                var builder : AlertDialog.Builder= AlertDialog.Builder(myContext)
+                                builder.setTitle("상대 기권으로 승리하였습니다!")
+                                builder.setPositiveButton("YAY", object: DialogInterface.OnClickListener {
+                                    override fun onClick(dialog: DialogInterface, which:Int) {
+
+                                        fragManager.popBackStack()
+                                    }
+                                }).show()
                             } else {
-                                circlePaint.color = ContextCompat.getColor(myContext, R.color.black)
-                                omokValue[new_x][new_y] = BaseApplication.blackStone
+                                if (isBlack) {
+                                    circlePaint.color = ContextCompat.getColor(myContext, R.color.white)
+                                    omokValue[new_x][new_y] = BaseApplication.whiteStone
+                                } else {
+                                    circlePaint.color = ContextCompat.getColor(myContext, R.color.black)
+                                    omokValue[new_x][new_y] = BaseApplication.blackStone
+                                }
+
+                                canvas.drawCircle(
+                                    new_x * cellWidth.toFloat(),
+                                    new_y * cellWidth.toFloat(),
+                                    cellWidth / 2.0f,
+                                    circlePaint
+                                )
+
+                                // 졌음
+                                if (horizonCheck(new_x, new_y, turn) || verticalCheck(
+                                        new_x,
+                                        new_y,
+                                        turn
+                                    ) || rightDownCheck(new_x, new_y, turn) || rightUpCheck(new_x, new_y, turn)
+                                ) {
+                                    Toast.makeText(myContext, "${turn}이 이겼습니다.", Toast.LENGTH_SHORT).show()
+                                }
+
+
+                                myTurn = true
+                                waitForNextMove = false
+
+
+                                fragTransaction = fragManager.beginTransaction()
+                                fragTransaction.detach(thisFragment).attach(thisFragment).commit()
                             }
 
-                            canvas.drawCircle(
-                                new_x * cellWidth.toFloat(),
-                                new_y * cellWidth.toFloat(),
-                                cellWidth / 2.0f,
-                                circlePaint
-                            )
-
-                            myTurn = true
-                            waitForNextMove = false
-
-
-                            fragTransaction = fragManager.beginTransaction()
-                            fragTransaction.detach(thisFragment).attach(thisFragment).commit()
                         }
 
                     }
