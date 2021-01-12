@@ -233,7 +233,6 @@ class ThirdFragmentWaiting : Fragment() {
                                 val state = myRoom_Json[0].asJsonObject["state"].toString().replace("\"", "")
 
                                 if (user2.id == myProfile.id) {
-                                    thirdFragmentGame = ThirdFragmentGame()
                                     thirdFragmentGame.roomNumber = roomNumber
                                     thirdFragmentGame.currentOpponent = user1
                                     thirdFragmentGame.isBlack = false

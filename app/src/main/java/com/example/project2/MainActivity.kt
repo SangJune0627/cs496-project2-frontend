@@ -184,14 +184,13 @@ class MainActivity : AppCompatActivity() {
                 builder.setTitle("도망치겠습니까?")
                 builder.setPositiveButton("도망친다", object: DialogInterface.OnClickListener {
                     override fun onClick(dialog: DialogInterface, which:Int) {
-                        thirdFragment!!.thirdFragmentGame.myTurn = false
-                        thirdFragment!!.thirdFragmentGame.waitForNextMove = false
-
-                        //Todo 여기를 surrender function으로 바꿔야 한다.
 
 
+//                        thirdFragment!!.thirdFragmentGame.myTurn = false
+//                        thirdFragment!!.thirdFragmentGame.waitForNextMove = false
 
-                        supportFragmentManager.popBackStack()
+                        //Todo 위에거를 surrender function으로 바꿔야 한다.
+                        thirdFragment!!.thirdFragmentGame.surrender()
                     }
                 })
                 builder.setNegativeButton("버틴다", object: DialogInterface.OnClickListener {

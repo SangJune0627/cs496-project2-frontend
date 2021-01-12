@@ -92,6 +92,7 @@ class ThirdFragmentGame : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
         myProfile = Profile.getCurrentProfile()
+        Log.d("profile", "init")
         thisFragment = this
     }
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -208,7 +209,6 @@ class ThirdFragmentGame : Fragment() {
                         circlePaint
                     )
 
-
                     var retrofitGameSendMove = RetrofitGameSendMove()
                     var sendMoveCall = retrofitGameSendMove.sendMoveService
                         .post(
@@ -250,9 +250,7 @@ class ThirdFragmentGame : Fragment() {
                             Log.d("SendMove", "onFailure" + t.message)
                         }
                     })
-
                 }
-
             }
             return@setOnTouchListener false
         }
@@ -365,20 +363,22 @@ class ThirdFragmentGame : Fragment() {
     }
 
     fun surrender() {
+        Log.d("surrender", "nono")
+        waitForNextMove = false
+        myProfile = Profile.getCurrentProfile()
         var retrofitGameSurrender = RetrofitGameSurrender()
-        var surrenderCall = retrofitGameSurrender.surrenderService.get(myProfile.id)
+        var surrenderCall = retrofitGameSurrender.surrenderService.get(myProfile.id, roomNumber)
 
         surrenderCall.enqueue(object: Callback<GameRoomBluePrint> {
             override fun onResponse(
                 call: Call<GameRoomBluePrint>,
                 response: Response<GameRoomBluePrint>
             ) {
-                waitForNextMove = false
                 omokValue = Array(19) { Array(19) { 0 } } // 바둑판 엎기
 
                 var builder : AlertDialog.Builder= AlertDialog.Builder(myContext)
-                builder.setTitle("패배했습니다")
-                builder.setPositiveButton("쩝", object: DialogInterface.OnClickListener {
+                builder.setTitle("기권했습니다")
+                builder.setPositiveButton("확인", object: DialogInterface.OnClickListener {
                     override fun onClick(dialog: DialogInterface, which:Int) {
                         fragManager.popBackStack()
                     }
@@ -391,9 +391,9 @@ class ThirdFragmentGame : Fragment() {
         })
     }
 
-    fun victory() {
+    fun victory(move: Move) {
         var retrofitGameVictory = RetrofitGameVictory()
-        var victoryCall = retrofitGameVictory.victoryService.get(myProfile.id)
+        var victoryCall = retrofitGameVictory.victoryService.post(move)
 
         victoryCall.enqueue(object: Callback<GameRoomBluePrint> {
             override fun onResponse(
@@ -403,8 +403,15 @@ class ThirdFragmentGame : Fragment() {
                 waitForNextMove = false
                 omokValue = Array(19) { Array(19) { 0 } } // 바둑판 엎기
 
+                var builder : AlertDialog.Builder= AlertDialog.Builder(myContext)
+                builder.setTitle("승리하였습니다!")
+                builder.setPositiveButton("YAY", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {
 
-                fragManager.popBackStack()
+                        fragManager.popBackStack()
+                    }
+                })
+
             }
 
             override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {

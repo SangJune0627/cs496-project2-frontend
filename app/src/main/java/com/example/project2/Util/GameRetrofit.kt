@@ -120,8 +120,8 @@ class RetrofitGameVictory {
 }
 
 interface GameVictoryService {
-    @GET("game/victory")
-    fun get(@Query("id") id: String): Call<GameRoomBluePrint>
+    @POST("game/victory")
+    fun post(@Body move: Move): Call<GameRoomBluePrint>
 }
 
 
@@ -137,5 +137,5 @@ class RetrofitGameSurrender {
 
 interface GameSurrenderService {
     @GET("game/surrender")
-    fun get(@Query("id") id: String): Call<GameRoomBluePrint>
+    fun get(@Query("id") id: String, @Query("roomnumber") roomNumber: String): Call<GameRoomBluePrint>
 }

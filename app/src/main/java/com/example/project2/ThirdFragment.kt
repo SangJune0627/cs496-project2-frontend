@@ -47,6 +47,8 @@ class ThirdFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         myContext = context as FragmentActivity
+        thirdFragmentWaiting = ThirdFragmentWaiting()
+        thirdFragmentGame = ThirdFragmentGame()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,8 +68,6 @@ class ThirdFragment : Fragment() {
 
         fragManager = myContext.supportFragmentManager
         fragTransaction = fragManager.beginTransaction()
-        thirdFragmentWaiting = ThirdFragmentWaiting()
-        thirdFragmentGame = ThirdFragmentGame()
 
         thirdFragmentWaiting.thirdFragmentGame = thirdFragmentGame
 
