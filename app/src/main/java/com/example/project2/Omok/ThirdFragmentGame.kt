@@ -61,6 +61,7 @@ class ThirdFragmentGame : Fragment() {
     private lateinit var fragManager: FragmentManager
     private lateinit var fragTransaction: FragmentTransaction
     private lateinit var thisFragment: ThirdFragmentGame
+    lateinit var thirdFragmentWaiting: ThirdFragmentWaiting
 
     private lateinit var viewOfLayout: View
 
@@ -361,7 +362,7 @@ class ThirdFragmentGame : Fragment() {
                                 builder.setTitle("상대 기권으로 승리하였습니다!")
                                 builder.setPositiveButton("YAY", object: DialogInterface.OnClickListener {
                                     override fun onClick(dialog: DialogInterface, which:Int) {
-
+                                        thirdFragmentWaiting.shouldRefresh = true
                                         fragManager.popBackStack()
                                     }
                                 }).show()
@@ -397,7 +398,7 @@ class ThirdFragmentGame : Fragment() {
                                     builder.setTitle("졌습니다!")
                                     builder.setPositiveButton("YAY", object: DialogInterface.OnClickListener {
                                         override fun onClick(dialog: DialogInterface, which:Int) {
-
+                                            thirdFragmentWaiting.shouldRefresh = true
                                             fragManager.popBackStack()
                                         }
                                     }).show()
@@ -442,6 +443,7 @@ class ThirdFragmentGame : Fragment() {
                 builder.setTitle("기권했습니다")
                 builder.setPositiveButton("확인", object: DialogInterface.OnClickListener {
                     override fun onClick(dialog: DialogInterface, which:Int) {
+                        thirdFragmentWaiting.shouldRefresh = true
                         fragManager.popBackStack()
                     }
                 }).show()
@@ -470,7 +472,7 @@ class ThirdFragmentGame : Fragment() {
                 builder.setTitle("승리하였습니다!")
                 builder.setPositiveButton("YAY", object: DialogInterface.OnClickListener {
                     override fun onClick(dialog: DialogInterface, which:Int) {
-
+                        thirdFragmentWaiting.shouldRefresh = true
                         fragManager.popBackStack()
                     }
                 }).show()

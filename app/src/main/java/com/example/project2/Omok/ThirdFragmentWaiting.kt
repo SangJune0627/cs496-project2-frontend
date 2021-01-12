@@ -62,6 +62,7 @@ class ThirdFragmentWaiting : Fragment() {
 
     var shouldRefresh = true
 
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         myContext = context as FragmentActivity
@@ -149,6 +150,7 @@ class ThirdFragmentWaiting : Fragment() {
                         thirdFragmentGame.roomNumber = roomNumber
                         thirdFragmentGame.isBlack = true
                         thirdFragmentGame.myTurn = true
+                        thirdFragmentGame.thirdFragmentWaiting = thisFragment
 
                         fragTransaction = fragManager.beginTransaction()
                         fragTransaction.replace(R.id.thirdFragment, thirdFragmentGame)
@@ -239,6 +241,7 @@ class ThirdFragmentWaiting : Fragment() {
                                     thirdFragmentGame.isBlack = false
                                     thirdFragmentGame.myTurn = false
                                     thirdFragmentGame.waitForNextMove = true
+                                    thirdFragmentGame.thirdFragmentWaiting = thisFragment
 
                                     fragTransaction = fragManager.beginTransaction()
                                     fragTransaction.replace(R.id.thirdFragment, thirdFragmentGame)

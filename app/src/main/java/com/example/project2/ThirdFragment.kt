@@ -47,7 +47,6 @@ class ThirdFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         myContext = context as FragmentActivity
-        thirdFragmentWaiting = ThirdFragmentWaiting()
         thirdFragmentGame = ThirdFragmentGame()
     }
 
@@ -69,6 +68,7 @@ class ThirdFragment : Fragment() {
         fragManager = myContext.supportFragmentManager
         fragTransaction = fragManager.beginTransaction()
 
+        thirdFragmentWaiting = ThirdFragmentWaiting()
         thirdFragmentWaiting.thirdFragmentGame = thirdFragmentGame
 
         fragTransaction.add(R.id.thirdFragment, thirdFragmentWaiting)
