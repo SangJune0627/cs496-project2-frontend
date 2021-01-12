@@ -1,6 +1,8 @@
 package com.example.project2
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.appcompat.app.AppCompatActivity
@@ -177,7 +179,25 @@ class MainActivity : AppCompatActivity() {
         when (index) {
             0 -> if (firstFragment?.closeSearchView() == true) finish()
             1 -> if (supportFragmentManager.backStackEntryCount > 0) supportFragmentManager.popBackStack() else finish()
-            2 -> if (supportFragmentManager.backStackEntryCount > 0) supportFragmentManager.popBackStack() else finish()
+            2 -> if (supportFragmentManager.backStackEntryCount > 0) {
+                var builder : AlertDialog.Builder= AlertDialog.Builder(this)
+                builder.setTitle("도망치겠습니까?")
+                builder.setPositiveButton("도망친다", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {
+                        thirdFragment!!.thirdFragmentGame.myTurn = false
+                        thirdFragment!!.thirdFragmentGame.waitForNextMove = false
+
+
+
+                        supportFragmentManager.popBackStack()
+                    }
+                })
+                builder.setNegativeButton("버틴다", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {}
+                })
+                builder.show()
+
+            } else finish()
             else -> finish()
         }
     }

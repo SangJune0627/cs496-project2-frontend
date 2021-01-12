@@ -42,6 +42,7 @@ class ThirdFragment : Fragment() {
     private lateinit var fragTransaction: FragmentTransaction
 
     private lateinit var thirdFragmentWaiting: ThirdFragmentWaiting
+    lateinit var thirdFragmentGame: ThirdFragmentGame
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -66,6 +67,9 @@ class ThirdFragment : Fragment() {
         fragManager = myContext.supportFragmentManager
         fragTransaction = fragManager.beginTransaction()
         thirdFragmentWaiting = ThirdFragmentWaiting()
+        thirdFragmentGame = ThirdFragmentGame()
+
+        thirdFragmentWaiting.thirdFragmentGame = thirdFragmentGame
 
         fragTransaction.add(R.id.thirdFragment, thirdFragmentWaiting)
         fragTransaction.commit()

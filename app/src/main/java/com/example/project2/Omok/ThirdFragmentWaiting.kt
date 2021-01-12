@@ -53,7 +53,7 @@ class ThirdFragmentWaiting : Fragment() {
     private lateinit var fragTransaction: FragmentTransaction
     private var thisFragment = this
 
-    private lateinit var thirdFragmentGame: ThirdFragmentGame
+    lateinit var thirdFragmentGame: ThirdFragmentGame
 
     private var myProfile: Profile? = null
 
@@ -178,7 +178,6 @@ class ThirdFragmentWaiting : Fragment() {
                         val newRoom_Json = response.body()!!.data // 이번에 만들어진 방만 담고있는 리스트
                         val roomNumber = newRoom_Json[0].asJsonObject["roomnumber"].toString()
 
-                        thirdFragmentGame = ThirdFragmentGame()
                         thirdFragmentGame.roomNumber = roomNumber
                         thirdFragmentGame.isBlack = true
                         thirdFragmentGame.myTurn = true
