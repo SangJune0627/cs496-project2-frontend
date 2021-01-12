@@ -365,10 +365,52 @@ class ThirdFragmentGame : Fragment() {
     }
 
     fun surrender() {
+        var retrofitGameSurrender = RetrofitGameSurrender()
+        var surrenderCall = retrofitGameSurrender.surrenderService.get(myProfile.id)
 
+        surrenderCall.enqueue(object: Callback<GameRoomBluePrint> {
+            override fun onResponse(
+                call: Call<GameRoomBluePrint>,
+                response: Response<GameRoomBluePrint>
+            ) {
+                waitForNextMove = false
+                omokValue = Array(19) { Array(19) { 0 } } // 바둑판 엎기
+
+                var builder : AlertDialog.Builder= AlertDialog.Builder(myContext)
+                builder.setTitle("패배했습니다")
+                builder.setPositiveButton("쩝", object: DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, which:Int) {
+                        fragManager.popBackStack()
+                    }
+                }).show()
+            }
+
+            override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {
+                Log.d("Surrender", "onFailure" + t.message)
+            }
+        })
     }
 
     fun victory() {
+        var retrofitGameVictory = RetrofitGameVictory()
+        var victoryCall = retrofitGameVictory.victoryService.get(myProfile.id)
+
+        victoryCall.enqueue(object: Callback<GameRoomBluePrint> {
+            override fun onResponse(
+                call: Call<GameRoomBluePrint>,
+                response: Response<GameRoomBluePrint>
+            ) {
+                waitForNextMove = false
+                omokValue = Array(19) { Array(19) { 0 } } // 바둑판 엎기
+
+
+                fragManager.popBackStack()
+            }
+
+            override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {
+                Log.d("Victory", "onFailure" + t.message)
+            }
+        })
 
     }
 

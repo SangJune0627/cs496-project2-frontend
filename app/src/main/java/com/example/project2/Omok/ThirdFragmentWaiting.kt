@@ -59,6 +59,8 @@ class ThirdFragmentWaiting : Fragment() {
 
     var rooms = arrayListOf<Room>(Room(roomnumber = 1, user1 = User(name = "박상준", id = "2905335259711277"), user2 = null, state = "wait"))
 
+    var shouldRefresh = true
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         myContext = context as FragmentActivity
@@ -297,6 +299,7 @@ class ThirdFragmentWaiting : Fragment() {
                         }
                         rooms.add(Room(roomnumber, user1, user2, state))
                     }
+                    Thread.sleep(200)
                     fragTransaction = fragManager.beginTransaction()
                     fragTransaction.detach(thisFragment).attach(thisFragment).commit()
 
@@ -311,9 +314,12 @@ class ThirdFragmentWaiting : Fragment() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        refresh()
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        if (shouldRefresh) {
+            refresh()
+            shouldRefresh = false
+        }
     }
 
     companion object {

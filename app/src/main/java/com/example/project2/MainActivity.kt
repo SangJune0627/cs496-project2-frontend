@@ -187,6 +187,8 @@ class MainActivity : AppCompatActivity() {
                         thirdFragment!!.thirdFragmentGame.myTurn = false
                         thirdFragment!!.thirdFragmentGame.waitForNextMove = false
 
+                        //Todo 여기를 surrender function으로 바꿔야 한다.
+
 
 
                         supportFragmentManager.popBackStack()
