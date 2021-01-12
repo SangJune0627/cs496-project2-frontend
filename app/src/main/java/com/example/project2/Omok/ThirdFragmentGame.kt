@@ -50,7 +50,7 @@ class ThirdFragmentGame : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
-    private var turn = BaseApplication.blackStone
+    private var turn = BaseApplication.whiteStone
     private var cellWidth = 55
     private var emptySize = 88
 //    private var omok = viewR.id.omok
@@ -109,6 +109,7 @@ class ThirdFragmentGame : Fragment() {
         if (currentOpponent == null) {
             val waitOpponentAsync = WaitOpponentAsync()
             waitOpponentAsync.execute()
+            waitingMessage.text = "${roomNumber}번 방에서 상대방을 찾는 중입니다."
         } else {
             waitingMessage.text = "${currentOpponent!!.name} 님과 대결 중입니다. 화이팅 하세요"
         }
@@ -190,6 +191,7 @@ class ThirdFragmentGame : Fragment() {
                 Toast.makeText(activity, "Test", Toast.LENGTH_SHORT).show()
             } else {
                 if (myTurn) {
+                    println(turn)
                     if (isBlack) {
                         circlePaint.color = ContextCompat.getColor(myContext, R.color.black)
                         omokValue[xCount][yCount] = BaseApplication.blackStone
@@ -223,16 +225,18 @@ class ThirdFragmentGame : Fragment() {
                             waitForNextMove = true
 
                             omok.setImageBitmap(bitmap)
+
+                            turnInitforMe()
                             if (horizonCheck(xCount, yCount, turn) || verticalCheck(
                                     xCount,
                                     yCount,
                                     turn
                                 ) || rightDownCheck(xCount, yCount, turn) || rightUpCheck(xCount, yCount, turn)
                             ) {
-                                Toast.makeText(myContext, "${turn}이 이겼습니다.", Toast.LENGTH_SHORT).show()
+                                victory(Move(myProfile.id, myProfile.name, roomNumber, Coordinates(xCount, yCount)))
                             }
 
-                            Log.d("wait", "async직전")
+
                             var waitNextMoveAsync = WaitNextMoveAsync()
                             waitNextMoveAsync.execute()
 
@@ -256,7 +260,25 @@ class ThirdFragmentGame : Fragment() {
     override fun onResume() {
         super.onResume()
         // ______________대기 메세지 띄우기______________________________________
-        waitingMessage.text = "${roomNumber}번 방에서 상대방을 찾는 중입니다."
+        if (currentOpponent == null) {
+            waitingMessage.text = "${roomNumber}번 방에서 상대방을 찾는 중입니다."
+        } else {
+            waitingMessage.text = "${currentOpponent!!.name} 님과 대결 중입니다. 화이팅 하세요"
+        }
+    }
+    fun turnInitforMe() {
+        if (isBlack) turn = BaseApplication.blackStone
+        else turn = BaseApplication.whiteStone
+    }
+
+    fun turnInitforYou() {
+        if (isBlack) turn = BaseApplication.whiteStone
+        else turn = BaseApplication.blackStone
+    }
+
+    fun turnStep() {
+        if (turn == BaseApplication.blackStone) turn = BaseApplication.whiteStone
+        else turn = BaseApplication.whiteStone
     }
 
     inner class WaitOpponentAsync : AsyncTask<Any?, Any?, Any?>() {
@@ -360,19 +382,29 @@ class ThirdFragmentGame : Fragment() {
                                 )
 
                                 // 졌음
+                                turnInitforYou()
                                 if (horizonCheck(new_x, new_y, turn) || verticalCheck(
                                         new_x,
                                         new_y,
                                         turn
                                     ) || rightDownCheck(new_x, new_y, turn) || rightUpCheck(new_x, new_y, turn)
                                 ) {
-                                    Toast.makeText(myContext, "${turn}이 이겼습니다.", Toast.LENGTH_SHORT).show()
-                                }
+                                    waitForNextMove = false
+                                    currentOpponent = null
+                                    omokValue = Array(19) { Array(19) { 0 } } // 바둑판 엎기
 
+                                    var builder : AlertDialog.Builder= AlertDialog.Builder(myContext)
+                                    builder.setTitle("졌습니다!")
+                                    builder.setPositiveButton("YAY", object: DialogInterface.OnClickListener {
+                                        override fun onClick(dialog: DialogInterface, which:Int) {
+
+                                            fragManager.popBackStack()
+                                        }
+                                    }).show()
+                                }
 
                                 myTurn = true
                                 waitForNextMove = false
-
 
                                 fragTransaction = fragManager.beginTransaction()
                                 fragTransaction.detach(thisFragment).attach(thisFragment).commit()
@@ -394,6 +426,7 @@ class ThirdFragmentGame : Fragment() {
     fun surrender() {
         Log.d("surrender", "nono")
         waitForNextMove = false
+        currentOpponent = null
         myProfile = Profile.getCurrentProfile()
         var retrofitGameSurrender = RetrofitGameSurrender()
         var surrenderCall = retrofitGameSurrender.surrenderService.get(myProfile.id, roomNumber)
@@ -430,6 +463,7 @@ class ThirdFragmentGame : Fragment() {
                 response: Response<GameRoomBluePrint>
             ) {
                 waitForNextMove = false
+                currentOpponent = null
                 omokValue = Array(19) { Array(19) { 0 } } // 바둑판 엎기
 
                 var builder : AlertDialog.Builder= AlertDialog.Builder(myContext)
@@ -439,7 +473,7 @@ class ThirdFragmentGame : Fragment() {
 
                         fragManager.popBackStack()
                     }
-                })
+                }).show()
 
             }
 

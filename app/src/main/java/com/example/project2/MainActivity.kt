@@ -180,23 +180,25 @@ class MainActivity : AppCompatActivity() {
             0 -> if (firstFragment?.closeSearchView() == true) finish()
             1 -> if (supportFragmentManager.backStackEntryCount > 0) supportFragmentManager.popBackStack() else finish()
             2 -> if (supportFragmentManager.backStackEntryCount > 0) {
-                var builder : AlertDialog.Builder= AlertDialog.Builder(this)
-                builder.setTitle("도망치겠습니까?")
-                builder.setPositiveButton("도망친다", object: DialogInterface.OnClickListener {
-                    override fun onClick(dialog: DialogInterface, which:Int) {
+                if (thirdFragment!!.thirdFragmentGame.waitForNextMove) {
+                    Toast.makeText(this, "상대방의 턴에는 도망칠 수 없다!", Toast.LENGTH_SHORT).show()
+                } else {
+                    var builder : AlertDialog.Builder= AlertDialog.Builder(this)
+                    builder.setTitle("도망치겠습니까?")
+                    builder.setPositiveButton("도망친다", object: DialogInterface.OnClickListener {
+                        override fun onClick(dialog: DialogInterface, which:Int) {
+
+                            //Todo 위에거를 surrender function으로 바꿔야 한다.
+                            thirdFragment!!.thirdFragmentGame.surrender()
+                        }
+                    })
+                    builder.setNegativeButton("버틴다", object: DialogInterface.OnClickListener {
+                        override fun onClick(dialog: DialogInterface, which:Int) {}
+                    })
+                    builder.show()
+                }
 
 
-//                        thirdFragment!!.thirdFragmentGame.myTurn = false
-//                        thirdFragment!!.thirdFragmentGame.waitForNextMove = false
-
-                        //Todo 위에거를 surrender function으로 바꿔야 한다.
-                        thirdFragment!!.thirdFragmentGame.surrender()
-                    }
-                })
-                builder.setNegativeButton("버틴다", object: DialogInterface.OnClickListener {
-                    override fun onClick(dialog: DialogInterface, which:Int) {}
-                })
-                builder.show()
 
             } else finish()
             else -> finish()

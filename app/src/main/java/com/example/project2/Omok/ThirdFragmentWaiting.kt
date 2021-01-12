@@ -287,16 +287,20 @@ class ThirdFragmentWaiting : Fragment() {
                     val roomList_Json = response.body()!!.data
                     println(roomList_Json)
                     roomList_Json.forEach{
-                        val roomnumber = Integer.parseInt(it.asJsonObject["roomnumber"].toString())
-                        val user1 = User(id = (it.asJsonObject["user1"] as JsonObject)["id"].toString(),
-                            name = (it.asJsonObject["user1"] as JsonObject)["name"].toString().replace("\"", ""))
                         val state = it.asJsonObject["state"].toString().replace("\"", "")
-                        var user2: User? = null
-                        if (state == "play") {
-                            user2 = User(id = (it.asJsonObject["user2"] as JsonObject)["id"].toString(),
-                                name = (it.asJsonObject["user2"] as JsonObject)["name"].toString().replace("\"", ""))
+
+                        if (state != "boom") {
+                            val roomnumber = Integer.parseInt(it.asJsonObject["roomnumber"].toString())
+                            val user1 = User(id = (it.asJsonObject["user1"] as JsonObject)["id"].toString(),
+                                name = (it.asJsonObject["user1"] as JsonObject)["name"].toString().replace("\"", ""))
+
+                            var user2: User? = null
+                            if (state == "play") {
+                                user2 = User(id = (it.asJsonObject["user2"] as JsonObject)["id"].toString(),
+                                    name = (it.asJsonObject["user2"] as JsonObject)["name"].toString().replace("\"", ""))
+                            }
+                            rooms.add(Room(roomnumber, user1, user2, state))
                         }
-                        rooms.add(Room(roomnumber, user1, user2, state))
                     }
                     Thread.sleep(200)
                     fragTransaction = fragManager.beginTransaction()
