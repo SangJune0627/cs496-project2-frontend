@@ -105,8 +105,37 @@ interface GameSendMoveService {
 
 }
 
-
-
 data class Move(val id: String, val name: String, val roomnumber: String, val coordinates: Coordinates)
 
 data class Coordinates(val x: Int, val y: Int)
+
+// Victory _________________________________________________________________________________________
+
+class RetrofitGameVictory {
+    val url = "http://192.249.18.171:4000/"
+    var retrofit_victory: Retrofit = Retrofit.Builder().baseUrl(url)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+
+    var victoryService = retrofit_victory.create(GameVictoryService::class.java)
+}
+
+interface GameVictoryService {
+    @GET("game/victory")
+    fun get(@Query("id") id: String): Call<GameRoomBluePrint>
+}
+
+
+// I surrender _____________________________________________________________________________________
+
+class RetrofitGameSurrender {
+    val url = "http://192.249.18.171:4000/"
+    var retrofit_surrender: Retrofit = Retrofit.Builder().baseUrl(url)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+
+    var surrenderService = retrofit_surrender.create(GameSurrenderService::class.java)
+}
+
+interface GameSurrenderService {
+    @GET("game/surrender")
+    fun get(@Query("id") id: String): Call<GameRoomBluePrint>
+}

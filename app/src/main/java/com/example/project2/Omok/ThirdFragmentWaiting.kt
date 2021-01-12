@@ -103,6 +103,7 @@ class ThirdFragmentWaiting : Fragment() {
         opponentView.layoutManager = viewManager
 
         // __________ 새로고침 버튼 _________________________________________________________________
+
         var refreshButton = viewOfLayout.findViewById<Button>(R.id.refreshButton)
         refreshButton.setOnClickListener {
             myProfile = Profile.getCurrentProfile()
@@ -115,43 +116,7 @@ class ThirdFragmentWaiting : Fragment() {
                 })
                 builder.show()
             } else {
-                var retrofitGameRoomDownload = RetrofitGameRoomDownload()
-                var downloadCall = retrofitGameRoomDownload.downloadService.get(myProfile!!.id, myProfile!!.name)
-
-                downloadCall.enqueue(object: Callback<GameRoomBluePrint> {
-                    override fun onResponse(
-                        call: Call<GameRoomBluePrint>,
-                        response: Response<GameRoomBluePrint>
-                    ) {
-                        rooms = ArrayList() // room 초기화
-                        if (response.isSuccessful) {
-
-                            val roomList_Json = response.body()!!.data
-                            println(roomList_Json)
-                            roomList_Json.forEach{
-                                val roomnumber = Integer.parseInt(it.asJsonObject["roomnumber"].toString())
-                                val user1 = User(id = (it.asJsonObject["user1"] as JsonObject)["id"].toString(),
-                                    name = (it.asJsonObject["user1"] as JsonObject)["name"].toString().replace("\"", ""))
-                                val state = it.asJsonObject["state"].toString().replace("\"", "")
-                                var user2: User? = null
-                                if (state == "play") {
-                                    user2 = User(id = (it.asJsonObject["user2"] as JsonObject)["id"].toString(),
-                                        name = (it.asJsonObject["user2"] as JsonObject)["name"].toString().replace("\"", ""))
-                                }
-                                rooms.add(Room(roomnumber, user1, user2, state))
-                            }
-                            fragTransaction = fragManager.beginTransaction()
-                            fragTransaction.detach(thisFragment).attach(thisFragment).commit()
-
-                        } else {
-                            Log.d("DownloadRoom", "onResponse: 실패")
-                        }
-                    }
-
-                    override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {
-                        Log.d("DownloadRoom", "onFailure" + t.message)
-                    }
-                })
+                refresh()
             }
         }
         // __ 방만들기 버튼 __________________________________________________________________________________________
@@ -303,6 +268,52 @@ class ThirdFragmentWaiting : Fragment() {
         override fun getItemCount(): Int {
             return rooms.size
         }
+    }
+
+    private fun refresh() {
+
+        var retrofitGameRoomDownload = RetrofitGameRoomDownload()
+        var downloadCall = retrofitGameRoomDownload.downloadService.get(myProfile!!.id, myProfile!!.name)
+
+        downloadCall.enqueue(object: Callback<GameRoomBluePrint> {
+            override fun onResponse(
+                call: Call<GameRoomBluePrint>,
+                response: Response<GameRoomBluePrint>
+            ) {
+                rooms = ArrayList() // room 초기화
+                if (response.isSuccessful) {
+
+                    val roomList_Json = response.body()!!.data
+                    println(roomList_Json)
+                    roomList_Json.forEach{
+                        val roomnumber = Integer.parseInt(it.asJsonObject["roomnumber"].toString())
+                        val user1 = User(id = (it.asJsonObject["user1"] as JsonObject)["id"].toString(),
+                            name = (it.asJsonObject["user1"] as JsonObject)["name"].toString().replace("\"", ""))
+                        val state = it.asJsonObject["state"].toString().replace("\"", "")
+                        var user2: User? = null
+                        if (state == "play") {
+                            user2 = User(id = (it.asJsonObject["user2"] as JsonObject)["id"].toString(),
+                                name = (it.asJsonObject["user2"] as JsonObject)["name"].toString().replace("\"", ""))
+                        }
+                        rooms.add(Room(roomnumber, user1, user2, state))
+                    }
+                    fragTransaction = fragManager.beginTransaction()
+                    fragTransaction.detach(thisFragment).attach(thisFragment).commit()
+
+                } else {
+                    Log.d("DownloadRoom", "onResponse: 실패")
+                }
+            }
+
+            override fun onFailure(call: Call<GameRoomBluePrint>, t: Throwable) {
+                Log.d("DownloadRoom", "onFailure" + t.message)
+            }
+        })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refresh()
     }
 
     companion object {

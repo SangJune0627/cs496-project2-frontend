@@ -325,7 +325,7 @@ class ThirdFragmentGame : Fragment() {
                         Log.d("lastmover", "$lastMover")
                         Log.d("myID", myProfile.id)
 
-                        if (myProfile.id != lastMover) {
+                        if (myProfile.id != lastMover && waitForNextMove) {
                             val new_x = Integer.parseInt(myRoom_Json[0].asJsonObject["x"].toString())
                             val new_y = Integer.parseInt(myRoom_Json[0].asJsonObject["y"].toString())
                             Log.d("지영", "무브 $new_x, $new_y")
@@ -365,6 +365,10 @@ class ThirdFragmentGame : Fragment() {
     }
 
     fun surrender() {
+
+    }
+
+    fun victory() {
 
     }
 
